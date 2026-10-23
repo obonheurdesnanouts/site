@@ -1,0 +1,519 @@
+
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <meta name="description" content="Découvrez les nouvelles, les sauvetages, les collectes et les événements de Ô Bonheur des Nanouts.">
+  <meta name="theme-color" content="#71866b">
+
+  <title>Nos nouvelles | Ô Bonheur des Nanouts</title>
+
+  <link rel="icon" type="image/png" sizes="96x96" href="images/favicon.png">
+
+  <meta property="og:title" content="Nos nouvelles | Ô Bonheur des Nanouts">
+  <meta property="og:description" content="Les nouvelles et les actions de Ô Bonheur des Nanouts.">
+  <meta property="og:image" content="https://ded0um.github.io/ob/images/icone-partage.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:url" content="https://ded0um.github.io/ob/nouvelles.html">
+  <meta property="og:type" content="website">
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .news-sort {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.7rem;
+      margin: 0 0 1.8rem;
+    }
+
+    .news-sort label {
+      font-weight: 600;
+      color: #4c5748;
+    }
+
+    .news-sort select {
+      max-width: 100%;
+      padding: 0.7rem 2.2rem 0.7rem 0.9rem;
+      border: 1px solid #cbd4c5;
+      border-radius: 10px;
+      background: #fff;
+      color: #394336;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .news-count {
+      margin-right: auto;
+      color: #687363;
+      font-size: 0.9rem;
+    }
+
+    .news-card {
+      margin: 0 0 2.5rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(113, 134, 107, 0.18);
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 5px 22px rgba(45, 55, 40, 0.06);
+      overflow: hidden;
+    }
+
+    .news-date {
+      margin-bottom: 0.6rem;
+      color: #71866b;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .news-card h2 {
+      margin: 0 0 1.2rem;
+      line-height: 1.35;
+    }
+
+    .news-layout {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+
+    .news-media {
+      flex: 0 0 42%;
+      min-width: 0;
+    }
+
+    .news-image {
+      display: block;
+      width: 100%;
+      max-height: 340px;
+      margin: 0 0 0.8rem;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 10px;
+    }
+
+    .news-media .news-image:last-child {
+      margin-bottom: 0;
+    }
+
+    .news-body {
+      flex: 1;
+      min-width: 0;
+      color: #44483f;
+      line-height: 1.8;
+      overflow-wrap: anywhere;
+    }
+
+    .news-body p {
+      margin: 0 0 1rem;
+    }
+
+    .news-body p:first-of-type::first-letter {
+      float: left;
+      color: #71866b;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 3.4em;
+      line-height: 0.85;
+      padding: 0.08em 0.12em 0 0;
+    }
+
+    /* Photo à droite pour une publication sur deux */
+    .news-card:nth-child(even) .news-layout {
+      flex-direction: row-reverse;
+    }
+
+    .news-layout.sans-photo .news-body {
+      width: 100%;
+    }
+
+    .news-status {
+      padding: 1rem;
+      border-radius: 12px;
+      background: #f4f6f1;
+      line-height: 1.6;
+    }
+
+    .news-error {
+      background: #fff4ed;
+    }
+
+    @media (max-width: 650px) {
+      .news-sort {
+        justify-content: flex-start;
+      }
+
+      .news-card {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .news-layout,
+      .news-card:nth-child(even) .news-layout {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .news-media {
+        flex: auto;
+        width: 100%;
+      }
+
+      .news-image {
+        max-height: 320px;
+        object-fit: contain;
+        background: #f8f8f5;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#contenu">Aller au contenu</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="Ô Bonheur des Nanouts, accueil">
+        <img src="images/logo.png" alt="Logo Ô Bonheur des Nanouts">
+        <span>Ô Bonheur des Nanouts</span>
+      </a>
+
+      <button class="nav-toggle" type="button"
+        aria-expanded="false" aria-controls="menu-principal">
+        ☰ Menu
+      </button>
+
+      <nav class="main-nav" id="menu-principal" aria-label="Navigation principale">
+        <a href="index.html">Accueil</a>
+        <a href="nouvelles.html" aria-current="page">Nos nouvelles</a>
+        <a href="adoption.html">Chats à l'adoption</a>
+        <a href="familles.html">Ils ont trouvé leur famille</a>
+        <a href="faq.html">FAQ</a>
+        <a class="nav-donate" href="faire-un-don.html">♡ Faire un don</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenu">
+    <section class="page-hero">
+      <div class="container">
+        <div class="eyebrow">La vie de notre association</div>
+        <h1>Nos nouvelles</h1>
+        <p class="lead">
+          Sauvetages, nouvelles de nos protégés, avancée de nos projets,
+          collectes, événements et appels aux dons : retrouvez ici toutes
+          les nouvelles de l'association.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container content">
+
+        <div class="news-sort" id="commandes-tri" hidden>
+          <span class="news-count" id="nombre-nouvelles"></span>
+
+          <label for="ordre-nouvelles">Trier les publications :</label>
+
+          <select id="ordre-nouvelles">
+            <option value="recent">Plus récentes → plus anciennes</option>
+            <option value="ancien">Plus anciennes → plus récentes</option>
+          </select>
+        </div>
+
+        <div id="liste-nouvelles" aria-live="polite">
+          <p class="news-status">
+            Chargement des nouvelles de l'association…
+          </p>
+        </div>
+
+        <div class="reveal">
+          <p>
+            Pour suivre nos actions au quotidien, retrouvez-nous également sur Facebook.
+          </p>
+
+          <a class="btn btn-primary"
+            href="https://www.facebook.com/share/19uXb3B98p/"
+            target="_blank" rel="noopener noreferrer">
+            Suivre l'association sur Facebook ↗
+          </a>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <strong>Ô Bonheur des Nanouts</strong> ·
+      <a href="mailto:obonheurdesnanouts@gmail.com">
+        obonheurdesnanouts@gmail.com
+      </a>
+      <br>
+      <span>© <span id="year">2026</span> Ô Bonheur des Nanouts</span>
+    </div>
+  </footer>
+
+  <a class="btn floating-donate" href="faire-un-don.html"
+    aria-label="Faire un don à l'association">
+    ♡ Faire un don
+  </a>
+
+  <div class="photo-modal" aria-hidden="true" role="dialog" aria-label="Photo agrandie">
+    <button type="button" aria-label="Fermer la photo">×</button>
+    <img src="" alt="">
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const depot = "ded0um/ob";
+    const dossier = "_nouvelles";
+    const liste = document.getElementById("liste-nouvelles");
+    const commandesTri = document.getElementById("commandes-tri");
+    const selectOrdre = document.getElementById("ordre-nouvelles");
+    const nombreNouvelles = document.getElementById("nombre-nouvelles");
+
+    let publications = [];
+
+    function echapper(texte) {
+      return String(texte || "").replace(/[&<>"']/g, caractere => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[caractere]);
+    }
+
+    function lireChamp(texte, nom) {
+      const expression = new RegExp(
+        "^" + nom + ":\\s*(.*)$",
+        "m"
+      );
+
+      const resultat = texte.match(expression);
+
+      if (!resultat) return "";
+
+      return resultat[1].trim().replace(/^["']|["']$/g, "");
+    }
+
+    function convertirTexte(texte) {
+      return texte
+        .split(/\n\s*\n/)
+        .map(paragraphe => {
+          const contenu = echapper(paragraphe.trim())
+            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\*(.+?)\*/g, "<em>$1</em>")
+            .replace(/\n/g, "<br>");
+
+          return contenu ? "<p>" + contenu + "</p>" : "";
+        })
+        .join("");
+    }
+
+    function cheminImage(chemin) {
+      if (!chemin) return "";
+
+      if (/^https?:\/\//i.test(chemin)) {
+        return chemin;
+      }
+
+      return "https://ded0um.github.io/ob/" +
+        chemin.replace(/^\/+/, "");
+    }
+
+    function afficherImage(chemin, titre) {
+      if (!chemin) return "";
+
+      return `
+        <img
+          class="news-image"
+          src="${echapper(cheminImage(chemin))}"
+          alt="${echapper(titre)}"
+          loading="lazy">
+      `;
+    }
+
+    function lireDate(date) {
+      if (!date) return 0;
+
+      const valeur = Date.parse(date + "T12:00:00");
+      return Number.isNaN(valeur) ? 0 : valeur;
+    }
+
+    function afficherArticle(publication, index) {
+      const titre = publication.titre;
+      const date = publication.date;
+      const corps = publication.corps;
+      const image = publication.image;
+      const image2 = publication.image2;
+
+      let dateAffichee = "";
+
+      if (date) {
+        const dateObjet = new Date(date + "T12:00:00");
+
+        if (!isNaN(dateObjet.getTime())) {
+          dateAffichee = dateObjet.toLocaleDateString("fr-FR");
+        }
+      }
+
+      const photos = [image, image2]
+        .filter(Boolean)
+        .map(chemin => afficherImage(chemin, titre))
+        .join("");
+
+      return `
+        <article class="news-card">
+          ${dateAffichee
+            ? `<div class="news-date">${echapper(dateAffichee)}</div>`
+            : ""}
+
+          <h2>${echapper(titre)}</h2>
+
+          <div class="news-layout ${photos ? "" : "sans-photo"}">
+            ${photos ? `<div class="news-media">${photos}</div>` : ""}
+
+            <div class="news-body">
+              ${convertirTexte(corps)}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function afficherPublications() {
+      const ordre = selectOrdre.value;
+
+      const triees = [...publications].sort((a, b) => {
+        const difference = lireDate(b.date) - lireDate(a.date);
+        return ordre === "recent" ? difference : -difference;
+      });
+
+      nombreNouvelles.textContent =
+        publications.length +
+        (publications.length > 1 ? " publications" : " publication");
+
+      liste.innerHTML = triees
+        .map((publication, index) => afficherArticle(publication, index))
+        .join("");
+    }
+
+    async function chargerNouvelles() {
+      liste.innerHTML = `
+        <p class="news-status">
+          Chargement des nouvelles de l'association…
+        </p>
+      `;
+
+      try {
+        const url =
+          "https://api.github.com/repos/" +
+          depot +
+          "/contents/" +
+          dossier;
+
+        const reponse = await fetch(url);
+
+        if (reponse.status === 404) {
+          liste.innerHTML = `
+            <p class="news-status">
+              Les premières nouvelles de l'association seront bientôt publiées ici.
+            </p>
+          `;
+          return;
+        }
+
+        if (!reponse.ok) {
+          throw new Error("Erreur GitHub : " + reponse.status);
+        }
+
+        const fichiers = await reponse.json();
+
+        if (!Array.isArray(fichiers)) {
+          throw new Error("Le dossier des nouvelles est illisible.");
+        }
+
+        const markdowns = fichiers.filter(fichier =>
+          fichier.type === "file" &&
+          fichier.name.toLowerCase().endsWith(".md")
+        );
+
+        if (markdowns.length === 0) {
+          liste.innerHTML = `
+            <p class="news-status">
+              Les premières nouvelles de l'association seront bientôt publiées ici.
+            </p>
+          `;
+          return;
+        }
+
+        const resultats = await Promise.all(
+          markdowns.map(async fichier => {
+            const contenu = await fetch(fichier.download_url);
+
+            if (!contenu.ok) return null;
+
+            const texte = await contenu.text();
+
+            const correspondance = texte.match(
+              /^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/
+            );
+
+            if (!correspondance) return null;
+
+            const meta = correspondance[1];
+            const corps = correspondance[2].trim();
+
+            return {
+              titre: lireChamp(meta, "title") || "Nouvelle de l'association",
+              date: lireChamp(meta, "date"),
+              image: lireChamp(meta, "image"),
+              image2: lireChamp(meta, "image2"),
+              corps: corps
+            };
+          })
+        );
+
+        publications = resultats.filter(Boolean);
+
+        if (publications.length === 0) {
+          liste.innerHTML = `
+            <p class="news-status">
+              Aucune publication lisible pour le moment.
+              Vérifiez le format des articles dans PagesCMS.
+            </p>
+          `;
+          return;
+        }
+
+        commandesTri.hidden = false;
+        afficherPublications();
+
+      } catch (erreur) {
+        console.error("Erreur de chargement des nouvelles :", erreur);
+
+        liste.innerHTML = `
+          <p class="news-status news-error">
+            Impossible de charger les nouvelles pour le moment.
+            Merci de réessayer plus tard.
+          </p>
+        `;
+      }
+    }
+
+    selectOrdre.addEventListener("change", afficherPublications);
+
+    chargerNouvelles();
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>
