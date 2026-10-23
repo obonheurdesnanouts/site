@@ -1,0 +1,127 @@
+
+media:
+  - name: chats
+    label: Photos des chats
+    input: images/chats
+    output: /images/chats
+    categories: [image]
+
+  - name: nouvelles
+    label: Photos des nouvelles
+    input: images/nouvelles
+    output: /images/nouvelles
+    categories: [image]
+
+content:
+  - name: nouvelles
+    label: Nos nouvelles
+    type: collection
+    path: _nouvelles
+    filename: "{year}-{month}-{day}-{primary}.md"
+    fields:
+      - name: title
+        label: Titre
+        type: string
+        required: true
+
+      - name: date
+        label: Date de publication
+        type: date
+        required: true
+
+      - name: image
+        label: Première photo (facultative)
+        type: image
+        options:
+          media: nouvelles
+
+      - name: image2
+        label: Deuxième photo (facultative)
+        type: image
+        options:
+          media: nouvelles
+
+      - name: body
+        label: Texte de la nouvelle
+        type: rich-text
+        required: true
+
+
+
+
+
+
+
+
+
+  # TOUS LES CHATS : ADOPTION ET FAMILLES
+  - name: chats
+    label: Tous les chats
+    type: collection
+    path: _chats
+    filename: "{primary}.md"
+    fields:
+      - name: title
+        label: Nom du chat
+        type: string
+        required: true
+
+      - name: date
+        label: Date de publication
+        type: date
+        required: true
+
+      - name: date_adoption
+        label: Date d'adoption
+        type: date
+
+      - name: image
+        label: Photo du chat
+        type: image
+        required: true
+        options:
+          media: chats
+
+      - name: statut
+        label: Statut du chat
+        type: select
+        options:
+          values:
+            - À l'adoption
+            - Adopté
+        required: true
+
+      - name: age
+        label: Âge du chat à la saisie
+        type: string
+        description: "Exemple : 3 mois, 8 mois, 1 an et 6 mois."
+
+      - name: date_age
+        label: Date de référence de l'âge
+        type: date
+        description: "Préremplie à la création de la fiche. Elle sert au calcul automatique de l'âge."
+      
+      - name: sexe
+        label: Sexe du chat
+        type: select
+        options:
+          values:
+            - Femelle
+            - Mâle
+            - Inconnu
+
+      - name: caractere
+        label: Caractère et description
+        type: rich-text
+
+      - name: conditions
+        label: Conditions d'adoption
+        type: rich-text
+
+      - name: histoire
+        label: Son histoire
+        type: rich-text
+
+      - name: body
+        label: Informations complémentaires
+        type: rich-text
