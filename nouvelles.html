@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="fr">
 <head>
@@ -14,11 +13,11 @@
 
   <meta property="og:title" content="Nos nouvelles | Ô Bonheur des Nanouts">
   <meta property="og:description" content="Les nouvelles et les actions de Ô Bonheur des Nanouts.">
-  <meta property="og:image" content="https://ded0um.github.io/ob/images/icone-partage.png">
+  <meta property="og:image" content="https://obonheurdesnanouts.github.io/site/images/icone-partage.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="512">
   <meta property="og:image:height" content="512">
-  <meta property="og:url" content="https://ded0um.github.io/ob/nouvelles.html">
+  <meta property="og:url" content="https://obonheurdesnanouts.github.io/site/nouvelles.html">
   <meta property="og:type" content="website">
 
   <link rel="stylesheet" href="style.css">
@@ -325,7 +324,7 @@
         return chemin;
       }
 
-      return "https://ded0um.github.io/ob/" +
+      return "https://obonheurdesnanouts.github.io/site/" +
         chemin.replace(/^\/+/, "");
     }
 
@@ -418,7 +417,8 @@
           "https://api.github.com/repos/" +
           depot +
           "/contents/" +
-          dossier;
+          dossier +
+          "?ref=main";
 
         const reponse = await fetch(url);
 
@@ -449,71 +449,4 @@
         if (markdowns.length === 0) {
           liste.innerHTML = `
             <p class="news-status">
-              Les premières nouvelles de l'association seront bientôt publiées ici.
-            </p>
-          `;
-          return;
-        }
-
-        const resultats = await Promise.all(
-          markdowns.map(async fichier => {
-            const contenu = await fetch(fichier.download_url);
-
-            if (!contenu.ok) return null;
-
-            const texte = await contenu.text();
-
-            const correspondance = texte.match(
-              /^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/
-            );
-
-            if (!correspondance) return null;
-
-            const meta = correspondance[1];
-            const corps = correspondance[2].trim();
-
-            return {
-              titre: lireChamp(meta, "title") || "Nouvelle de l'association",
-              date: lireChamp(meta, "date"),
-              image: lireChamp(meta, "image"),
-              image2: lireChamp(meta, "image2"),
-              corps: corps
-            };
-          })
-        );
-
-        publications = resultats.filter(Boolean);
-
-        if (publications.length === 0) {
-          liste.innerHTML = `
-            <p class="news-status">
-              Aucune publication lisible pour le moment.
-              Vérifiez le format des articles dans PagesCMS.
-            </p>
-          `;
-          return;
-        }
-
-        commandesTri.hidden = false;
-        afficherPublications();
-
-      } catch (erreur) {
-        console.error("Erreur de chargement des nouvelles :", erreur);
-
-        liste.innerHTML = `
-          <p class="news-status news-error">
-            Impossible de charger les nouvelles pour le moment.
-            Merci de réessayer plus tard.
-          </p>
-        `;
-      }
-    }
-
-    selectOrdre.addEventListener("change", afficherPublications);
-
-    chargerNouvelles();
-  </script>
-
-  <script src="script.js"></script>
-</body>
-</html>
+              Les premières nouvelles de l
