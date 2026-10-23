@@ -1,8 +1,9 @@
+
 <!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <meta name="description" content="Découvrez les nouvelles, les sauvetages, les collectes et les événements de Ô Bonheur des Nanouts.">
   <meta name="theme-color" content="#71866b">
@@ -10,6 +11,7 @@
   <title>Nos nouvelles | Ô Bonheur des Nanouts</title>
 
   <link rel="icon" type="image/png" sizes="96x96" href="images/favicon.png">
+  <link rel="stylesheet" href="style.css">
 
   <meta property="og:title" content="Nos nouvelles | Ô Bonheur des Nanouts">
   <meta property="og:description" content="Les nouvelles et les actions de Ô Bonheur des Nanouts.">
@@ -20,15 +22,13 @@
   <meta property="og:url" content="https://obonheurdesnanouts.github.io/site/nouvelles.html">
   <meta property="og:type" content="website">
 
-  <link rel="stylesheet" href="style.css">
-
   <style>
     .news-sort {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: flex-end;
-      gap: 0.7rem;
+      gap: .7rem;
       margin: 0 0 1.8rem;
     }
 
@@ -39,7 +39,7 @@
 
     .news-sort select {
       max-width: 100%;
-      padding: 0.7rem 2.2rem 0.7rem 0.9rem;
+      padding: .7rem 2.2rem .7rem .9rem;
       border: 1px solid #cbd4c5;
       border-radius: 10px;
       background: #fff;
@@ -51,23 +51,23 @@
     .news-count {
       margin-right: auto;
       color: #687363;
-      font-size: 0.9rem;
+      font-size: .9rem;
     }
 
     .news-card {
       margin: 0 0 2.5rem;
       padding: 1.5rem;
-      border: 1px solid rgba(113, 134, 107, 0.18);
+      border: 1px solid rgba(113, 134, 107, .18);
       border-radius: 18px;
       background: #fff;
-      box-shadow: 0 5px 22px rgba(45, 55, 40, 0.06);
+      box-shadow: 0 5px 22px rgba(45, 55, 40, .06);
       overflow: hidden;
     }
 
     .news-date {
-      margin-bottom: 0.6rem;
+      margin-bottom: .6rem;
       color: #71866b;
-      font-size: 0.9rem;
+      font-size: .9rem;
       font-weight: 600;
     }
 
@@ -91,10 +91,11 @@
       display: block;
       width: 100%;
       max-height: 340px;
-      margin: 0 0 0.8rem;
+      margin: 0 0 .8rem;
       object-fit: cover;
       object-position: center;
       border-radius: 10px;
+      cursor: zoom-in;
     }
 
     .news-media .news-image:last-child {
@@ -113,16 +114,41 @@
       margin: 0 0 1rem;
     }
 
+    .news-body h3,
+    .news-body h4 {
+      margin: 1.2rem 0 .6rem;
+      color: #394336;
+      line-height: 1.4;
+    }
+
+    .news-body ul,
+    .news-body ol {
+      padding-left: 1.5rem;
+      margin: 0 0 1rem;
+    }
+
+    .news-body a {
+      color: #526b4b;
+      text-decoration: underline;
+      overflow-wrap: anywhere;
+    }
+
+    .news-body blockquote {
+      margin: 1rem 0;
+      padding: .5rem 1rem;
+      border-left: 4px solid #a8b69f;
+      background: #f6f8f4;
+    }
+
     .news-body p:first-of-type::first-letter {
       float: left;
       color: #71866b;
       font-family: Georgia, "Times New Roman", serif;
       font-size: 3.4em;
-      line-height: 0.85;
-      padding: 0.08em 0.12em 0 0;
+      line-height: .85;
+      padding: .08em .12em 0 0;
     }
 
-    /* Photo à droite pour une publication sur deux */
     .news-card:nth-child(even) .news-layout {
       flex-direction: row-reverse;
     }
@@ -140,6 +166,39 @@
 
     .news-error {
       background: #fff4ed;
+    }
+
+    .photo-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: rgba(20, 25, 18, .88);
+    }
+
+    .photo-modal.ouverte {
+      display: flex;
+    }
+
+    .photo-modal img {
+      max-width: 95vw;
+      max-height: 88vh;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .photo-modal button {
+      position: absolute;
+      top: 1rem;
+      right: 1.2rem;
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-size: 2.5rem;
+      cursor: pointer;
     }
 
     @media (max-width: 650px) {
@@ -263,25 +322,33 @@
     ♡ Faire un don
   </a>
 
-  <div class="photo-modal" aria-hidden="true" role="dialog" aria-label="Photo agrandie">
-    <button type="button" aria-label="Fermer la photo">×</button>
-    <img src="" alt="">
+  <div class="photo-modal" id="photo-modal"
+    aria-hidden="true" role="dialog" aria-modal="true"
+    aria-label="Photo agrandie">
+    <button type="button" id="fermer-photo" aria-label="Fermer la photo">×</button>
+    <img src="" alt="Photo agrandie">
   </div>
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
 
     const depot = "obonheurdesnanouts/site";
+    const branche = "main";
     const dossier = "_nouvelles";
+    const baseSite = "https://obonheurdesnanouts.github.io/site/";
+
     const liste = document.getElementById("liste-nouvelles");
     const commandesTri = document.getElementById("commandes-tri");
     const selectOrdre = document.getElementById("ordre-nouvelles");
     const nombreNouvelles = document.getElementById("nombre-nouvelles");
 
+    const modal = document.getElementById("photo-modal");
+    const modalImage = modal.querySelector("img");
+
     let publications = [];
 
     function echapper(texte) {
-      return String(texte || "").replace(/[&<>"']/g, caractere => ({
+      return String(texte ?? "").replace(/[&<>"']/g, caractere => ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
@@ -290,42 +357,159 @@
       })[caractere]);
     }
 
-    function lireChamp(texte, nom) {
-      const expression = new RegExp(
-        "^" + nom + ":\\s*(.*)$",
-        "m"
-      );
-
-      const resultat = texte.match(expression);
-
-      if (!resultat) return "";
-
-      return resultat[1].trim().replace(/^["']|["']$/g, "");
-    }
-
-    function convertirTexte(texte) {
-      return texte
-        .split(/\n\s*\n/)
-        .map(paragraphe => {
-          const contenu = echapper(paragraphe.trim())
-            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-            .replace(/\*(.+?)\*/g, "<em>$1</em>")
-            .replace(/\n/g, "<br>");
-
-          return contenu ? "<p>" + contenu + "</p>" : "";
-        })
-        .join("");
-    }
-
     function cheminImage(chemin) {
       if (!chemin) return "";
 
-      if (/^https?:\/\//i.test(chemin)) {
+      chemin = String(chemin).trim().replace(/^['"]|['"]$/g, "");
+
+      if (/^(https?:)?\/\//i.test(chemin) || /^data:image\//i.test(chemin)) {
         return chemin;
       }
 
-      return "https://obonheurdesnanouts.github.io/site/" +
-        chemin.replace(/^\/+/, "");
+      return baseSite + chemin.replace(/^\/+/, "");
+    }
+
+    /*
+      Lit le titre, la date et les images dans le front matter YAML
+      des fichiers Markdown créés avec PagesCMS.
+    */
+    function analyserMarkdown(texte) {
+      texte = String(texte || "")
+        .replace(/^\uFEFF/, "")
+        .replace(/\r\n/g, "\n");
+
+      let front = "";
+      let corps = texte;
+
+      const correspondance = texte.match(/^---\s*\n([\s\S]*?)\n---\s*(?:\n|$)/);
+
+      if (correspondance) {
+        front = correspondance[1];
+        corps = texte.slice(correspondance[0].length);
+      }
+
+      const champs = {};
+      const lignes = front.split("\n");
+      let champCourant = "";
+
+      for (const ligne of lignes) {
+        const resultat = ligne.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+
+        if (resultat) {
+          champCourant = resultat[1];
+          let valeur = resultat[2].trim();
+
+          if (valeur === ">" || valeur === "|") {
+            champs[champCourant] = "";
+            continue;
+          }
+
+          valeur = valeur.replace(/^(['"])([\s\S]*)\1$/, "$2");
+          champs[champCourant] = valeur;
+        } else if (/^\s+/.test(ligne) && champCourant &&
+                   champs[champCourant] === "") {
+          champs[champCourant] +=
+            (champs[champCourant] ? "\n" : "") + ligne.trim();
+        }
+      }
+
+      return {
+        titre: champs.title || champs.titre || "Nouvelle de l’association",
+        date: String(champs.date || "").slice(0, 10),
+        image: champs.image || "",
+        image2: champs.image2 || "",
+        corps: corps.trim()
+      };
+    }
+
+    /*
+      Affiche les paragraphes, titres, listes, citations, liens,
+      gras et italiques rédigés dans le contenu Markdown.
+    */
+    function inlineMarkdown(texte) {
+      let resultat = echapper(texte);
+
+      resultat = resultat.replace(
+        /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+        (match, libelle, url) =>
+          '<a href="' + url +
+          '" target="_blank" rel="noopener noreferrer">' +
+          libelle + '</a>'
+      );
+
+      resultat = resultat
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/__(.+?)__/g, "<strong>$1</strong>")
+        .replace(/\*(.+?)\*/g, "<em>$1</em>")
+        .replace(/_(.+?)_/g, "<em>$1</em>")
+        .replace(/`([^`]+)`/g, "<code>$1</code>");
+
+      return resultat;
+    }
+
+    function convertirTexte(texte) {
+      if (!texte || !texte.trim()) {
+        return "<p>Le texte de cette nouvelle sera bientôt disponible.</p>";
+      }
+
+      const blocs = texte
+        .replace(/\r\n/g, "\n")
+        .split(/\n\s*\n/);
+
+      return blocs.map(bloc => {
+        bloc = bloc.trim();
+
+        if (!bloc) return "";
+
+        const lignes = bloc.split("\n");
+
+        // Liste à puces
+        if (lignes.every(ligne => /^\s*[-*+]\s+/.test(ligne))) {
+          return "<ul>" +
+            lignes.map(ligne =>
+              "<li>" +
+              inlineMarkdown(ligne.replace(/^\s*[-*+]\s+/, "")) +
+              "</li>"
+            ).join("") +
+            "</ul>";
+        }
+
+        // Liste numérotée
+        if (lignes.every(ligne => /^\s*\d+[.)]\s+/.test(ligne))) {
+          return "<ol>" +
+            lignes.map(ligne =>
+              "<li>" +
+              inlineMarkdown(ligne.replace(/^\s*\d+[.)]\s+/, "")) +
+              "</li>"
+            ).join("") +
+            "</ol>";
+        }
+
+        // Titres Markdown
+        const titre = bloc.match(/^(#{1,3})\s+([\s\S]*)$/);
+
+        if (titre) {
+          const niveau = Math.min(titre[1].length + 1, 4);
+
+          return "<h" + niveau + ">" +
+            inlineMarkdown(titre[2]) +
+            "</h" + niveau + ">";
+        }
+
+        // Citation
+        if (/^>\s?/.test(bloc)) {
+          return "<blockquote>" +
+            lignes.map(ligne =>
+              inlineMarkdown(ligne.replace(/^>\s?/, ""))
+            ).join("<br>") +
+            "</blockquote>";
+        }
+
+        // Paragraphe classique
+        return "<p>" +
+          lignes.map(inlineMarkdown).join("<br>") +
+          "</p>";
+      }).join("\n");
     }
 
     function afficherImage(chemin, titre) {
@@ -340,48 +524,42 @@
       `;
     }
 
-    function lireDate(date) {
-      if (!date) return 0;
+    function dateValeur(date) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date || "")) return 0;
 
       const valeur = Date.parse(date + "T12:00:00");
+
       return Number.isNaN(valeur) ? 0 : valeur;
     }
 
-    function afficherArticle(publication, index) {
-      const titre = publication.titre;
+    function afficherArticle(publication) {
       const date = publication.date;
-      const corps = publication.corps;
-      const image = publication.image;
-      const image2 = publication.image2;
+      const valeurDate = dateValeur(date);
 
-      let dateAffichee = "";
+      const dateAffichee = valeurDate
+        ? new Date(valeurDate).toLocaleDateString("fr-FR")
+        : "";
 
-      if (date) {
-        const dateObjet = new Date(date + "T12:00:00");
-
-        if (!isNaN(dateObjet.getTime())) {
-          dateAffichee = dateObjet.toLocaleDateString("fr-FR");
-        }
-      }
-
-      const photos = [image, image2]
+      const photos = [publication.image, publication.image2]
         .filter(Boolean)
-        .map(chemin => afficherImage(chemin, titre))
+        .map(chemin => afficherImage(chemin, publication.titre))
         .join("");
 
       return `
         <article class="news-card">
           ${dateAffichee
-            ? `<div class="news-date">${echapper(dateAffichee)}</div>`
+            ? `<div class="news-date">
+                 <time datetime="${echapper(date)}">${echapper(dateAffichee)}</time>
+               </div>`
             : ""}
 
-          <h2>${echapper(titre)}</h2>
+          <h2>${echapper(publication.titre)}</h2>
 
           <div class="news-layout ${photos ? "" : "sans-photo"}">
             ${photos ? `<div class="news-media">${photos}</div>` : ""}
 
             <div class="news-body">
-              ${convertirTexte(corps)}
+              ${convertirTexte(publication.corps)}
             </div>
           </div>
         </article>
@@ -389,26 +567,68 @@
     }
 
     function afficherPublications() {
-      const ordre = selectOrdre.value;
-
       const triees = [...publications].sort((a, b) => {
-        const difference = lireDate(b.date) - lireDate(a.date);
-        return ordre === "recent" ? difference : -difference;
+        const difference = dateValeur(b.date) - dateValeur(a.date);
+
+        return selectOrdre.value === "recent"
+          ? difference
+          : -difference;
       });
 
       nombreNouvelles.textContent =
         publications.length +
         (publications.length > 1 ? " publications" : " publication");
 
-      liste.innerHTML = triees
-        .map((publication, index) => afficherArticle(publication, index))
-        .join("");
+      liste.innerHTML = triees.map(afficherArticle).join("");
+
+      commandesTri.hidden = publications.length < 2;
+    }
+
+    async function obtenirTexteMarkdown(fichier) {
+      // Lecture directe du fichier Markdown sur GitHub
+      if (fichier.download_url) {
+        const reponse = await fetch(fichier.download_url);
+
+        if (reponse.ok) {
+          return await reponse.text();
+        }
+      }
+
+      // Solution de secours avec l'API GitHub
+      const url =
+        "https://api.github.com/repos/" +
+        depot +
+        "/contents/" +
+        encodeURIComponent(dossier + "/" + fichier.name) +
+        "?ref=" + branche;
+
+      const reponse = await fetch(url, {
+        headers: { "Accept": "application/vnd.github+json" }
+      });
+
+      if (!reponse.ok) {
+        throw new Error("Impossible de lire " + fichier.name);
+      }
+
+      const donnees = await reponse.json();
+
+      if (!donnees.content) {
+        throw new Error("Le contenu de " + fichier.name + " est inaccessible.");
+      }
+
+      const binaire = atob(donnees.content.replace(/\s/g, ""));
+      const octets = Uint8Array.from(
+        binaire,
+        caractere => caractere.charCodeAt(0)
+      );
+
+      return new TextDecoder("utf-8").decode(octets);
     }
 
     async function chargerNouvelles() {
       liste.innerHTML = `
         <p class="news-status">
-          Chargement des nouvelles de l'association…
+          Chargement des nouvelles de l’association…
         </p>
       `;
 
@@ -418,35 +638,145 @@
           depot +
           "/contents/" +
           dossier +
-          "?ref=main";
+          "?ref=" + branche;
 
-        const reponse = await fetch(url);
+        const reponse = await fetch(url, {
+          headers: { "Accept": "application/vnd.github+json" }
+        });
 
         if (reponse.status === 404) {
+          commandesTri.hidden = true;
+
           liste.innerHTML = `
             <p class="news-status">
               Les premières nouvelles de l'association seront bientôt publiées ici.
             </p>
           `;
+
           return;
         }
 
         if (!reponse.ok) {
-          throw new Error("Erreur GitHub : " + reponse.status);
+          throw new Error("GitHub a répondu avec le code " + reponse.status);
         }
 
         const fichiers = await reponse.json();
 
         if (!Array.isArray(fichiers)) {
-          throw new Error("Le dossier des nouvelles est illisible.");
+          throw new Error(
+            "Le dossier _nouvelles est introuvable ou inaccessible."
+          );
         }
 
         const markdowns = fichiers.filter(fichier =>
-          fichier.type === "file" &&
-          fichier.name.toLowerCase().endsWith(".md")
+          fichier.type === "file" && /\.md$/i.test(fichier.name)
         );
 
         if (markdowns.length === 0) {
+          commandesTri.hidden = true;
+
           liste.innerHTML = `
             <p class="news-status">
-              Les premières nouvelles de l
+              Aucune nouvelle n'a encore été publiée.
+              Les prochaines actualités apparaîtront ici.
+            </p>
+          `;
+
+          return;
+        }
+
+        const resultats = await Promise.allSettled(
+          markdowns.map(async fichier =>
+            analyserMarkdown(await obtenirTexteMarkdown(fichier))
+          )
+        );
+
+        publications = resultats
+          .filter(resultat => resultat.status === "fulfilled")
+          .map(resultat => resultat.value)
+          .filter(publication => publication.titre);
+
+        if (publications.length === 0) {
+          throw new Error(
+            "Les fichiers existent, mais leur contenu n'a pas pu être lu."
+          );
+        }
+
+        afficherPublications();
+
+        const erreurs = resultats.filter(
+          resultat => resultat.status === "rejected"
+        ).length;
+
+        if (erreurs > 0) {
+          liste.insertAdjacentHTML(
+            "beforeend",
+            `<p class="news-status">
+              Certaines publications n'ont pas pu être chargées.
+              Réessaie un peu plus tard.
+            </p>`
+          );
+        }
+
+      } catch (erreur) {
+        console.error("Chargement des nouvelles impossible :", erreur);
+
+        commandesTri.hidden = true;
+
+        liste.innerHTML = `
+          <p class="news-status news-error">
+            Impossible de charger les nouvelles pour le moment.
+            Vérifie ta connexion ou réessaie dans quelques instants.
+          </p>
+        `;
+      }
+    }
+
+    // Changement de l'ordre d'affichage
+    selectOrdre.addEventListener("change", afficherPublications);
+
+    // Agrandissement des photos
+    liste.addEventListener("click", evenement => {
+      const image = evenement.target.closest(".news-image");
+
+      if (!image) return;
+
+      modalImage.src = image.src;
+      modalImage.alt = image.alt;
+
+      modal.classList.add("ouverte");
+      modal.setAttribute("aria-hidden", "false");
+
+      document.body.style.overflow = "hidden";
+    });
+
+    function fermerModal() {
+      modal.classList.remove("ouverte");
+      modal.setAttribute("aria-hidden", "true");
+
+      modalImage.src = "";
+
+      document.body.style.overflow = "";
+    }
+
+    document
+      .getElementById("fermer-photo")
+      .addEventListener("click", fermerModal);
+
+    modal.addEventListener("click", evenement => {
+      if (evenement.target === modal) {
+        fermerModal();
+      }
+    });
+
+    document.addEventListener("keydown", evenement => {
+      if (evenement.key === "Escape") {
+        fermerModal();
+      }
+    });
+
+    // Chargement initial des actualités
+    chargerNouvelles();
+  </script>
+</body>
+</html>
