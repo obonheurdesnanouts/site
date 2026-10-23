@@ -1,0 +1,926 @@
+
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Découvrez les chats à l'adoption de l'association Ô Bonheur des Nanouts.">
+<meta name="theme-color" content="#71866b">
+<title>Chats à l'adoption | Ô Bonheur des Nanouts</title>
+
+<!-- Icône du site -->
+<link rel="icon" type="image/png" sizes="96x96" href="images/favicon.png">
+
+<!-- Informations de partage -->
+<meta property="og:title" content="Chats à l'adoption | Ô Bonheur des Nanouts">
+<meta property="og:description" content="Découvrez les chats à l'adoption de l'association Ô Bonheur des Nanouts.">
+<meta property="og:image" content="https://ded0um.github.io/ob/images/icone-partage.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:url" content="https://ded0um.github.io/ob/adoption.html">
+<meta property="og:type" content="website">
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+#liste-chats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 25px;
+  margin-top: 25px;
+  align-items: start;
+}
+
+.chat-card {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 15px #0002;
+}
+
+.chat-card > img {
+  display: block;
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  object-position: center;
+  background: #f7f5ef;
+  cursor: zoom-in;
+}
+
+.chat-card-content {
+  padding: 14px;
+  overflow-wrap: anywhere;
+}
+
+.chat-card h2 {
+  margin: 0 0 10px;
+  font-size: 1.8rem;
+}
+
+/* Informations avec un espacement identique */
+.chat-infos {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0 0 12px;
+}
+
+/* Même présentation pour toutes les rubriques */
+.chat-description,
+.chat-badge {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid #dce6d7;
+  border-radius: 10px;
+  background: #edf2e9;
+  color: #425640;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+/* Titres avec exactement la même épaisseur */
+.chat-description h3,
+.chat-badge strong {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  color: #425640;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600 !important;
+  line-height: inherit;
+}
+
+.chat-description span {
+  font-weight: 400;
+}
+
+.chat-description ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.chat-description li {
+  margin-bottom: 3px;
+  padding-left: 2px;
+  line-height: 1.45;
+}
+
+.chat-description li:last-child {
+  margin-bottom: 0;
+}
+
+.chat-description li::marker {
+  color: #71866b;
+}
+
+.chat-description p {
+  margin: 0 0 5px;
+  line-height: 1.45;
+}
+
+.chat-description p:last-child {
+  margin-bottom: 0;
+}
+
+/* Boutons côte à côte */
+.chat-card .actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.chat-card .actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 10px 8px;
+  font-size: 0.88rem;
+  line-height: 1.3;
+  text-align: center;
+  white-space: normal;
+  cursor: pointer;
+}
+
+.chat-card .btn-partager {
+  border: 1px solid #71866b;
+  background: #edf2e9;
+  color: #425640;
+}
+
+.chat-card.lien-partage-cible {
+  outline: 3px solid #71866b;
+  outline-offset: 4px;
+}
+
+#etat-chats {
+  margin: 20px 0;
+}
+
+/* Tri et filtres */
+.filtres-chats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+  margin: 20px 0;
+  padding: 14px;
+  border: 1px solid #dce6d7;
+  border-radius: 12px;
+  background: #f7f9f5;
+}
+
+.filtres-chats label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 180px;
+  font-weight: 600;
+  color: #425640;
+}
+
+.filtres-chats select {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #cbd8c5;
+  border-radius: 8px;
+  background: #fff;
+  color: #263326;
+  font: inherit;
+}
+
+#resultats-filtres {
+  margin: 8px 0 0;
+  color: #52664e;
+}
+
+/* Tablettes et téléphones : défilement naturel, sans magnétisme */
+@media (max-width: 700px) {
+  #liste-chats {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* On conserve la hauteur actuelle des photos */
+  .chat-card > img {
+    height: 280px;
+  }
+
+  .chat-card-content {
+    padding: 12px;
+  }
+
+  .chat-card h2 {
+    font-size: 1.65rem;
+  }
+
+  .chat-infos {
+    gap: 7px;
+  }
+
+  .chat-description,
+  .chat-badge {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+
+  .chat-description h3,
+  .chat-badge strong {
+    font-size: 0.9rem;
+  }
+
+  .chat-card .actions .btn {
+    padding: 10px 6px;
+    font-size: 0.82rem;
+  }
+}
+
+@media (max-width: 350px) {
+  .chat-card .actions {
+    flex-wrap: wrap;
+  }
+
+  .chat-card .actions .btn {
+    flex-basis: 100%;
+  }
+}
+</style>
+</head>
+
+<body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html" aria-label="Accueil Ô Bonheur des Nanouts">
+      <img src="images/logo.png" alt="Logo Ô Bonheur des Nanouts">
+      <span>Ô Bonheur des Nanouts</span>
+    </a>
+
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu-principal">
+      ☰ Menu
+    </button>
+
+    <nav class="main-nav" id="menu-principal" aria-label="Navigation principale">
+      <a href="index.html">Accueil</a>
+      <a href="nouvelles.html">Nos nouvelles</a>
+      <a href="adoption.html" aria-current="page">Chats à l'adoption</a>
+      <a href="familles.html">Ils ont trouvé leur famille</a>
+      <a href="faq.html">FAQ</a>
+      <a class="nav-donate" href="faire-un-don.html">♡ Faire un don</a>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+  <section class="page-hero">
+    <div class="container">
+      <div class="eyebrow">Une famille pour la vie</div>
+      <h1>Chats à l'adoption</h1>
+      <p class="lead">
+        Ils attendent une famille aimante qui leur offrira sécurité, douceur et une nouvelle chance.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container content">
+      <h2 class="reveal">Nos petits protégés cherchent une famille</h2>
+      <p class="reveal">
+        Découvrez nos protégés et contactez-nous pour en savoir plus sur une adoption.
+      </p>
+
+      <div class="filtres-chats" aria-label="Trier et filtrer les chats">
+        <label for="tri-chats">Trier par
+          <select id="tri-chats">
+            <option value="date">Plus récemment publiés</option>
+            <option value="nom">Nom (A à Z)</option>
+            <option value="age-jeune">Âge : du plus jeune au plus âgé</option>
+            <option value="age-vieux">Âge : du plus âgé au plus jeune</option>
+          </select>
+        </label>
+
+        <label for="filtre-sexe">Sexe
+          <select id="filtre-sexe">
+            <option value="tous">Tous les chats</option>
+            <option value="femelle">Femelles</option>
+            <option value="male">Mâles</option>
+            <option value="inconnu">Sexe inconnu</option>
+          </select>
+        </label>
+
+        <label for="filtre-age">Âge
+          <select id="filtre-age">
+            <option value="tous">Tous les âges</option>
+            <option value="moins6">Moins de 6 mois</option>
+            <option value="6a12">De 6 à 12 mois</option>
+            <option value="plus12">Plus d'un an</option>
+            <option value="nonprecise">Âge non précisé</option>
+          </select>
+        </label>
+      </div>
+
+      <p id="etat-chats" role="status" aria-live="polite">
+        Chargement des chats à l'adoption…
+      </p>
+
+      <p id="resultats-filtres" aria-live="polite" hidden></p>
+      <div id="liste-chats"></div>
+
+      <div class="paw-divider" aria-hidden="true">🐾　·　🐾　·　🐾</div>
+
+      <h2 class="reveal">Vous souhaitez adopter ?</h2>
+      <p class="reveal">
+        L'adoption est un engagement important. Contactez-nous pour connaître les modalités.
+      </p>
+
+      <div class="actions reveal">
+        <a class="btn btn-primary" href="mailto:obonheurdesnanouts@gmail.com?subject=Demande%20d'adoption">
+          Nous contacter
+        </a>
+        <a class="btn btn-secondary" href="faire-un-don.html">
+          Soutenir l'association
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <strong>Ô Bonheur des Nanouts</strong> ·
+    <a href="mailto:obonheurdesnanouts@gmail.com">obonheurdesnanouts@gmail.com</a>
+    <br>
+    <span>© <span id="year">2026</span> Ô Bonheur des Nanouts</span>
+  </div>
+</footer>
+
+<a class="btn floating-donate" href="faire-un-don.html" aria-label="Faire un don">
+  ♡ Faire un don
+</a>
+
+<div class="photo-modal" aria-hidden="true" role="dialog" aria-label="Photo agrandie">
+  <button type="button" aria-label="Fermer la photo">×</button>
+  <img src="" alt="">
+</div>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+
+const depot = "ded0um/ob";
+const dossier = "_chats";
+const cheminSite = "/ob";
+
+const zone = document.getElementById("liste-chats");
+const etat = document.getElementById("etat-chats");
+const triChats = document.getElementById("tri-chats");
+const filtreSexe = document.getElementById("filtre-sexe");
+const filtreAge = document.getElementById("filtre-age");
+const resultatsFiltres = document.getElementById("resultats-filtres");
+
+let tousLesChats = [];
+
+function echapper(t) {
+  return String(t ?? "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[c]));
+}
+
+function lireFicheMarkdown(texte) {
+  const m = texte.match(/^---\s*\r?\n([\s\S]*?)\r?\n---\s*(?:\r?\n|$)([\s\S]*)$/);
+  if (!m) return null;
+
+  const lignes = m[1].split(/\r?\n/);
+  const obj = {};
+
+  for (let i = 0; i < lignes.length; i++) {
+    const r = lignes[i].match(/^([A-Za-z0-9_-]+):(?:\s*(.*))?$/);
+    if (!r) continue;
+
+    const cle = r[1];
+    const valeur = (r[2] || "").trim();
+
+    if (["|", ">", "|-", ">-", "|+", ">+"].includes(valeur)) {
+      const bloc = [];
+      i++;
+
+      while (
+        i < lignes.length &&
+        (/^\s+/.test(lignes[i]) || lignes[i].trim() === "")
+      ) {
+        bloc.push(lignes[i].replace(/^\s{2,}/, ""));
+        i++;
+      }
+
+      i--;
+      obj[cle] = valeur.startsWith(">")
+        ? bloc.join(" ").trim()
+        : bloc.join("\n").trim();
+    } else {
+      obj[cle] = valeur.replace(/^(['"])([\s\S]*)\1$/, "$2").trim();
+    }
+  }
+
+  obj.corps = m[2].trim();
+  return obj;
+}
+
+function statutNormalise(s) {
+  return String(s || "")
+    .trim()
+    .toLocaleLowerCase("fr")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function cheminImage(p) {
+  if (!p) return "";
+  if (/^https?:\/\//i.test(p)) return p;
+  return cheminSite + "/" + p.replace(/^\/+/, "");
+}
+
+function dateFr(d) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d || "")) return d || "";
+
+  const [a, m, j] = d.split("-").map(Number);
+  return new Date(a, m - 1, j).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+/* Conversion de l'âge en mois */
+function ageEnMois(age) {
+  const texte = String(age || "")
+    .toLocaleLowerCase("fr")
+    .replace(/,/g, ".");
+
+  if (!texte.trim()) return null;
+
+  let mois = 0;
+  let trouve = false;
+
+  const ans = texte.match(/(\d+(?:\.\d+)?)\s*(?:an|ans|année|années)\b/);
+  const m = texte.match(/(\d+(?:\.\d+)?)\s*(?:mois|moi)\b/);
+  const semaines = texte.match(/(\d+(?:\.\d+)?)\s*(?:semaine|semaines)\b/);
+  const jours = texte.match(/(\d+(?:\.\d+)?)\s*(?:jour|jours)\b/);
+
+  if (ans) {
+    mois += Number(ans[1]) * 12;
+    trouve = true;
+  }
+
+  if (m) {
+    mois += Number(m[1]);
+    trouve = true;
+  }
+
+  if (semaines) {
+    mois += Number(semaines[1]) / 4.345;
+    trouve = true;
+  }
+
+  if (jours) {
+    mois += Number(jours[1]) / 30.437;
+    trouve = true;
+  }
+
+  if (!trouve && /^\d+(?:\.\d+)?$/.test(texte.trim())) {
+    mois = Number(texte.trim());
+    trouve = true;
+  }
+
+  return trouve ? Math.max(0, Math.floor(mois)) : null;
+}
+
+function moisEcoules(dateReference) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateReference || "")) return 0;
+
+  const [an, mois, jour] = dateReference.split("-").map(Number);
+  const maintenant = new Date();
+
+  let ecoules =
+    (maintenant.getFullYear() - an) * 12 +
+    (maintenant.getMonth() + 1 - mois);
+
+  if (maintenant.getDate() < jour) ecoules--;
+
+  return Math.max(0, ecoules);
+}
+
+function ageActuel(chat) {
+  const base = ageEnMois(chat.age);
+
+  if (base === null) {
+    return { texte: chat.age || "", mois: null };
+  }
+
+  const reference = chat.dateAge || chat.date;
+  const total = base + moisEcoules(reference);
+
+  const ans = Math.floor(total / 12);
+  const mois = total % 12;
+
+  let texte = "";
+
+  if (ans) {
+    texte = ans + (ans > 1 ? " ans" : " an");
+  }
+
+  if (mois) {
+    texte += (texte ? " et " : "") + mois + " mois";
+  }
+
+  if (!texte) texte = "Moins d'un mois";
+
+  return { texte, mois: total };
+}
+
+function sexeNormalise(sexe) {
+  const s = statutNormalise(sexe);
+
+  if (s === "femelle") return "femelle";
+  if (s === "male") return "male";
+
+  return "inconnu";
+}
+
+function paragraphes(t) {
+  const texte = String(t || "").trim();
+  if (!texte) return "";
+
+  const blocs = texte.split(/\n\s*\n/).filter(b => b.trim());
+
+  return blocs.map(bloc => {
+    const lignes = bloc
+      .split(/\r?\n/)
+      .map(l => l.trim())
+      .filter(Boolean);
+
+    return "<ul>" + lignes.map(ligne => {
+      const element = ligne.replace(/^([-*•]|\d+[.)])\s+/, "");
+      return "<li>" + echapper(element) + "</li>";
+    }).join("") + "</ul>";
+  }).join("");
+}
+
+async function lireChat(f) {
+  const r = await fetch(f.download_url);
+  if (!r.ok) throw Error("Lecture impossible : " + f.name);
+
+  const o = lireFicheMarkdown(await r.text());
+  if (!o) return null;
+
+  return {
+    id: f.name.replace(/\.md$/i, ""),
+    titre: o.title || "",
+    date: o.date || "",
+    image: o.image || "",
+    statut: o.statut || "",
+    age: o.age || "",
+    dateAge: o.date_age || "",
+    sexe: o.sexe || "",
+    caractere: o.caractere || "",
+    conditions: o.conditions || "",
+    histoire: o.histoire || "",
+    body: o.body || o.corps || ""
+  };
+}
+
+function afficherChat(chat) {
+  const carte = document.createElement("article");
+  carte.className = "chat-card reveal";
+  carte.id = "chat-" + chat.id;
+
+  let html = "";
+  const photo = cheminImage(chat.image);
+  const age = ageActuel(chat);
+
+  if (photo) {
+    html += '<img data-enlarge src="' + echapper(photo) +
+      '" alt="Photo de ' + echapper(chat.titre) +
+      '" loading="lazy" tabindex="0" role="button" aria-label="Agrandir la photo de ' +
+      echapper(chat.titre) + '">';
+  }
+
+  html += '<div class="chat-card-content">';
+  html += '<h2>🐱 ' + echapper(chat.titre) + '</h2>';
+  html += '<div class="chat-infos">';
+
+  if (age.texte) {
+    html += '<div class="chat-badge">' +
+      '<strong>Âge :</strong> ' +
+      '<span>' + echapper(age.texte) + '</span>' +
+      '</div>';
+  }
+
+  if (chat.sexe) {
+    html += '<div class="chat-badge">' +
+      '<strong>Sexe :</strong> ' +
+      '<span>' + echapper(chat.sexe) + '</span>' +
+      '</div>';
+  }
+
+  if (chat.caractere && chat.caractere.trim()) {
+    html += '<section class="chat-description">' +
+      '<h3>Caractère :</h3> ' +
+      '<span>' + echapper(chat.caractere.trim()).replace(/\r?\n/g, "<br>") + '</span>' +
+      '</section>';
+  }
+
+  if (chat.conditions && chat.conditions.trim()) {
+    html += '<section class="chat-description">' +
+      '<h3>Conditions d’adoption :</h3> ' +
+      '<span>' + echapper(chat.conditions.trim()).replace(/\r?\n/g, "<br>") + '</span>' +
+      '</section>';
+  }
+
+  if (chat.histoire && chat.histoire.trim()) {
+    html += '<section class="chat-description">' +
+      '<h3>Son histoire :</h3> ' +
+      '<span>' + echapper(chat.histoire.trim()).replace(/\r?\n/g, "<br>") + '</span>' +
+      '</section>';
+  }
+
+  if (chat.body && chat.body.trim()) {
+    html += '<section class="chat-description">' +
+      '<h3>Informations complémentaires :</h3> ' +
+      '<span>' + echapper(chat.body.trim()).replace(/\r?\n/g, "<br>") + '</span>' +
+      '</section>';
+  }
+
+  if (chat.date) {
+    html += '<div class="chat-badge date-publication">' +
+      '<strong>Date de publication :</strong> ' +
+      '<span>' + echapper(dateFr(chat.date)) + '</span>' +
+      '</div>';
+  }
+
+  html += '</div>';
+
+  html += '<div class="actions">' +
+    '<a class="btn btn-primary" href="mailto:obonheurdesnanouts@gmail.com?subject=' +
+    encodeURIComponent("Demande d'adoption : " + chat.titre) +
+    '">Me renseigner</a>' +
+    '<button class="btn btn-partager" type="button" data-share-chat="' +
+    echapper(chat.id) + '">↗ Partager</button></div>';
+
+  html += '</div>';
+
+  carte.innerHTML = html;
+  zone.appendChild(carte);
+}
+
+async function partagerChat(id, bouton) {
+  const chat = tousLesChats.find(c => c.id === id);
+  if (!chat) return;
+
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+  url.searchParams.set("chat", chat.id);
+
+  const donnees = {
+    title: chat.titre + " cherche une famille",
+    text: "Découvrez " + chat.titre +
+      ", proposé à l'adoption par Ô Bonheur des Nanouts.",
+    url: url.toString()
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(donnees);
+    } catch (erreur) {
+      if (erreur && erreur.name !== "AbortError") {
+        console.error("Partage impossible :", erreur);
+      }
+    }
+    return;
+  }
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(donnees.url);
+    } else {
+      const champ = document.createElement("textarea");
+      champ.value = donnees.url;
+      champ.style.position = "fixed";
+      champ.style.opacity = "0";
+      document.body.appendChild(champ);
+      champ.select();
+
+      const copie = document.execCommand("copy");
+      champ.remove();
+
+      if (!copie) throw new Error("Copie non prise en charge");
+    }
+
+    const ancienTexte = bouton.textContent;
+    bouton.textContent = "✓ Lien copié !";
+
+    setTimeout(() => {
+      bouton.textContent = ancienTexte;
+    }, 2000);
+  } catch (erreur) {
+    window.prompt(
+      "Copiez le lien pour partager cette fiche :",
+      donnees.url
+    );
+  }
+}
+
+zone.addEventListener("click", event => {
+  const bouton = event.target.closest("[data-share-chat]");
+  if (!bouton) return;
+
+  partagerChat(bouton.dataset.shareChat, bouton);
+});
+
+function afficherListeFiltree() {
+  const sexeChoisi = filtreSexe.value;
+  const ageChoisi = filtreAge.value;
+
+  let chats = tousLesChats.filter(chat => {
+    if (
+      sexeChoisi !== "tous" &&
+      sexeNormalise(chat.sexe) !== sexeChoisi
+    ) {
+      return false;
+    }
+
+    const age = ageActuel(chat);
+
+    if (ageChoisi === "nonprecise") {
+      return age.mois === null;
+    }
+
+    if (ageChoisi === "moins6" &&
+        !(age.mois !== null && age.mois < 6)) {
+      return false;
+    }
+
+    if (ageChoisi === "6a12" &&
+        !(age.mois !== null && age.mois >= 6 && age.mois <= 12)) {
+      return false;
+    }
+
+    if (ageChoisi === "plus12" &&
+        !(age.mois !== null && age.mois > 12)) {
+      return false;
+    }
+
+    if (
+      ageChoisi !== "tous" &&
+      ageChoisi !== "nonprecise" &&
+      age.mois === null
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const modeTri = triChats.value;
+
+  chats.sort((a, b) => {
+    if (modeTri === "nom") {
+      return a.titre.localeCompare(
+        b.titre, "fr", { sensitivity: "base" }
+      );
+    }
+
+    if (modeTri === "age-jeune" || modeTri === "age-vieux") {
+      const aa = ageActuel(a).mois;
+      const bb = ageActuel(b).mois;
+
+      if (aa === null && bb === null) {
+        return a.titre.localeCompare(b.titre, "fr");
+      }
+
+      if (aa === null) return 1;
+      if (bb === null) return -1;
+
+      return modeTri === "age-jeune" ? aa - bb : bb - aa;
+    }
+
+    return (b.date || "").localeCompare(a.date || "");
+  });
+
+  zone.replaceChildren();
+
+  if (!chats.length) {
+    resultatsFiltres.hidden = false;
+    resultatsFiltres.textContent =
+      "Aucun chat ne correspond à ces filtres.";
+    return;
+  }
+
+  resultatsFiltres.hidden = false;
+  resultatsFiltres.textContent =
+    chats.length + (chats.length > 1
+      ? " chats affichés"
+      : " chat affiché");
+
+  chats.forEach(afficherChat);
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    zone.querySelectorAll(".chat-card").forEach(carte => {
+      carte.classList.add("visible");
+    });
+
+    const idPartage =
+      new URLSearchParams(window.location.search).get("chat");
+
+    if (idPartage) {
+      const cible = document.getElementById("chat-" + idPartage);
+
+      if (cible) {
+        cible.classList.add("lien-partage-cible");
+        cible.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+    }
+  }));
+}
+
+async function chargerChats() {
+  try {
+    const r = await fetch(
+      "https://api.github.com/repos/" + depot +
+      "/contents/" + dossier + "?ref=main"
+    );
+
+    if (!r.ok) {
+      throw Error(
+        "Erreur GitHub HTTP " + r.status +
+        ". Vérifie que le dossier _chats existe."
+      );
+    }
+
+    const fichiers = await r.json();
+
+    if (!Array.isArray(fichiers)) {
+      throw Error("Le dossier _chats est introuvable.");
+    }
+
+    const markdown = fichiers.filter(f =>
+      f.type === "file" && f.name.endsWith(".md")
+    );
+
+    const resultats = await Promise.all(
+      markdown.map(f => lireChat(f).catch(e => {
+        console.error(e);
+        return null;
+      }))
+    );
+
+    tousLesChats = resultats.filter(c =>
+      c && c.titre &&
+      statutNormalise(c.statut) === "a l'adoption"
+    );
+
+    if (!tousLesChats.length) {
+      etat.textContent =
+        "Aucun chat n'est actuellement présenté à l'adoption. Revenez bientôt !";
+      return;
+    }
+
+    etat.hidden = true;
+
+    [triChats, filtreSexe, filtreAge].forEach(el => {
+      el.addEventListener("change", afficherListeFiltree);
+    });
+
+    afficherListeFiltree();
+
+  } catch (e) {
+    console.error(e);
+    etat.textContent =
+      "Impossible de charger les chats. " + e.message;
+  }
+}
+
+chargerChats();
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#71866b">
+
+  <title>Faire un don | Ô Bonheur des Nanouts</title>
+  <meta name="description" content="Aidez Ô Bonheur des Nanouts à protéger, soigner et nourrir les chats errants et abandonnés.">
+
+  <!-- Icône du site -->
+  <link rel="icon" type="image/png" sizes="96x96" href="images/favicon.png">
+
+  <!-- Informations de partage -->
+  <meta property="og:title" content="Faire un don | Ô Bonheur des Nanouts">
+  <meta property="og:description" content="Aidez Ô Bonheur des Nanouts à protéger, soigner et nourrir les chats errants et abandonnés.">
+  <meta property="og:image" content="https://ded0um.github.io/ob/images/icone-partage.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:url" content="https://ded0um.github.io/ob/faire-un-don.html">
+  <meta property="og:type" content="website">
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .don-page {
+      width: min(100% - 2.4rem, 900px);
+      margin: 0 auto;
+      padding: 38px 0 50px;
+    }
+
+    .don-intro {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto 25px;
+    }
+
+    .don-eyebrow {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--sage-dark);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .don-intro h1 {
+      margin: 0 auto 15px;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 1.15;
+    }
+
+    .don-intro p {
+      max-width: 700px;
+      margin: 0 auto;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+
+    .don-uses {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      padding: 20px;
+      background: var(--sage-light);
+      border-radius: 20px;
+    }
+
+    .don-uses-title {
+      grid-column: 1 / -1;
+      margin: 0 0 4px;
+      text-align: center;
+      font-size: 1.35rem;
+    }
+
+    .don-use {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+      padding: 12px;
+      background: var(--paper);
+      border-radius: 13px;
+    }
+
+    .don-use-icon {
+      flex: 0 0 38px;
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--sage-light);
+      font-size: 1.2rem;
+    }
+
+    .don-use strong {
+      display: block;
+      color: var(--sage-dark);
+      font-size: .94rem;
+      line-height: 1.4;
+    }
+
+    .don-form-section {
+      width: 100%;
+      max-width: 500px;
+      margin: 30px auto 0;
+      scroll-margin-top: 110px;
+    }
+
+    .don-form-section h2 {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: clamp(1.8rem, 4vw, 2.3rem);
+    }
+
+    .don-form-intro {
+      margin: 0 auto 18px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .don-form-container {
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+      padding: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    #haWidgetLight {
+      display: block;
+      width: 100%;
+      max-width: 440px;
+      height: 700px;
+      margin: 0 auto;
+      border: 0;
+      background: transparent;
+    }
+
+    .don-form-note {
+      margin: 12px auto 0;
+      color: var(--muted);
+      font-size: .84rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .don-thanks {
+      margin: 28px auto 0;
+      padding: 18px;
+      text-align: center;
+      border-top: 1px solid var(--line);
+    }
+
+    .don-thanks p {
+      margin: 5px 0 0;
+      color: var(--muted);
+    }
+
+    @media (max-width: 600px) {
+      .don-page {
+        width: min(100% - 1.4rem, 900px);
+        padding: 28px 0 35px;
+      }
+
+      .don-uses {
+        grid-template-columns: 1fr;
+        padding: 14px;
+        gap: 9px;
+      }
+
+      .don-uses-title {
+        margin-bottom: 5px;
+      }
+
+      .don-use {
+        padding: 10px;
+      }
+
+      .don-form-section {
+        margin-top: 25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+ <header class="site-header">
+    <div class="header-inner">
+
+      <a class="brand" href="index.html" aria-label="Accueil Ô Bonheur des Nanouts">
+        <img src="images/logo.png" alt="Logo Ô Bonheur des Nanouts">
+        <span>Ô Bonheur des Nanouts</span>
+      </a>
+
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-label="Ouvrir le menu"
+        aria-expanded="false"
+        aria-controls="menu-principal">
+        ☰ Menu
+      </button>
+
+    <nav class="main-nav" id="menu-principal" aria-label="Navigation principale">
+      <a href="index.html">Accueil</a>
+      <a href="nouvelles.html">Nos nouvelles</a>
+      <a href="adoption.html">Chats à l'adoption</a>
+      <a href="familles.html">Ils ont trouvé leur famille</a>
+      <a href="faq.html">FAQ</a>
+      <a class="nav-donate" href="faire-un-don.html" aria-current="page">♡ Faire un don</a>
+    </nav>
+
+    </div>
+  </header>
+
+  <main class="don-page">
+
+    <section class="don-intro">
+      <span class="don-eyebrow">Ô Bonheur des Nanouts</span>
+
+      <h1>Aidez-nous à protéger les chats</h1>
+
+      <p>
+        Chaque don nous aide à financer les soins vétérinaires,
+        la stérilisation, la nourriture et la protection des chats errants
+        et abandonnés. Grâce à vous, nous pouvons continuer à prendre soin d'eux.
+      </p>
+    </section>
+
+    <section class="don-uses reveal" aria-label="Utilisation des dons">
+
+      <h2 class="don-uses-title">Votre don contribue à financer</h2>
+
+      <div class="don-use">
+        <span class="don-use-icon" aria-hidden="true">🩺</span>
+        <strong>Les soins vétérinaires</strong>
+      </div>
+
+      <div class="don-use">
+        <span class="don-use-icon" aria-hidden="true">🐱</span>
+        <strong>La stérilisation et l'identification</strong>
+      </div>
+
+      <div class="don-use">
+        <span class="don-use-icon" aria-hidden="true">🥣</span>
+        <strong>La nourriture et la litière</strong>
+      </div>
+
+      <div class="don-use">
+        <span class="don-use-icon" aria-hidden="true">❤️</span>
+        <strong>La protection et le bien-être des chats</strong>
+      </div>
+
+    </section>
+
+    <section class="don-form-section reveal" id="formulaire-don"
+      aria-labelledby="don-form-title">
+
+      <h2 id="don-form-title">Je fais un don</h2>
+
+      <p class="don-form-intro">
+        Choisissez librement le montant de votre don sur HelloAsso.
+        Chaque contribution compte, quel que soit son montant.
+      </p>
+
+      <div class="don-form-container">
+        <iframe
+          id="haWidgetLight"
+          title="Formulaire de don HelloAsso - Ô Bonheur des Nanouts"
+          allowtransparency="true"
+          allow="payment 'self' https://paymenthub.helloassopay.com https://helloasso.com"
+          scrolling="auto"
+          src="https://www.helloasso.com/associations/obonheurdesnanouts/formulaires/3/widget?view=form">
+        </iframe>
+      </div>
+
+      <p class="don-form-note">
+        🔒 Votre don est effectué via HelloAsso. Merci pour votre soutien.
+      </p>
+
+    </section>
+
+    <section class="don-thanks reveal">
+      <strong>💚 Merci d'être là pour eux !</strong>
+      <p>Pour les chats, chaque geste compte. 🐾</p>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        © <span id="current-year"></span> Ô Bonheur des Nanouts
+        — Ensemble pour la protection des chats 🐾
+      </p>
+
+      <p>
+        <a href="mailto:obonheurdesnanouts@gmail.com">Nous contacter</a>
+        ·
+        <a href="https://www.facebook.com/share/19uXb3B98p/"
+           target="_blank" rel="noopener noreferrer">
+          Notre Facebook
+        </a>
+      </p>
+    </div>
+  </footer>
+
+  <a class="btn floating-donate" href="#formulaire-don">
+    ♡ Faire un don
+  </a>
+
+  <script src="script.js"></script>
+
+  <script>
+    const yearElement = document.getElementById("current-year");
+
+    if (yearElement) {
+      yearElement.textContent = new Date().getFullYear();
+    }
+
+    window.addEventListener("message", function (event) {
+      if (
+        event.origin !== "https://www.helloasso.com" &&
+        event.origin !== "https://helloasso.com"
+      ) {
+        return;
+      }
+
+      const widget = document.getElementById("haWidgetLight");
+
+      if (!widget || !event.data || !event.data.height) {
+        return;
+      }
+
+      const height = Number(event.data.height);
+
+      if (Number.isFinite(height) && height > 0) {
+        widget.style.height = height + "px";
+      }
+    });
+  </script>
+
+</body>
+</html>
