@@ -5,5 +5,6 @@ date_adoption: 2026-10-11
 image: /images/chats/Baby.jpeg
 statut: À l'adoption
 age: 6 mois
-sexe: Mâle
+date_age: 2026-10-30
+sexe: Femelle
 ---
