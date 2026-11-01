@@ -177,7 +177,18 @@ print("Modèle utilisé :", GEMINI_MODEL)
                 timeout=(20, 300)
             )
 
-            response.raise_for_status()
+if response.status_code in (429, 500, 502, 503, 504):
+    print(f"Gemini indisponible : erreur {response.status_code}")
+
+    if attempt == 2:
+        response.raise_for_status()
+
+    wait = 10 * (attempt + 1)
+    print(f"Nouvel essai dans {wait} secondes...")
+    time.sleep(wait)
+    continue
+
+response.raise_for_status()
 print("Gemini a répondu correctement.")
 
             result = response.json()
