@@ -166,7 +166,8 @@ Si aucune publication ne mérite une actualité :
                 f"Envoi des publications à Gemini "
                 f"(tentative {attempt + 1}/3)..."
             )
-
+print("Connexion à l'API Gemini...")
+print("Modèle utilisé :", GEMINI_MODEL)
             response = requests.post(
                 url,
                 headers={
@@ -177,6 +178,7 @@ Si aucune publication ne mérite une actualité :
             )
 
             response.raise_for_status()
+print("Gemini a répondu correctement.")
 
             result = response.json()
 
