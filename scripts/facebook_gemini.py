@@ -2,7 +2,7 @@
 import json
 import os
 import re
-import sys
+import time
 from pathlib import Path
 
 import requests
@@ -95,13 +95,24 @@ Si aucune publication ne mérite une actualité :
         f"models/{GEMINI_MODEL}:generateContent"
     )
 
-    response = requests.post(
-        url,
-        headers={"x-goog-api-key": GEMINI_KEY},
-        json=payload,
-        timeout=90,
-    )
-    response.raise_for_status()
+for attempt in range(3):
+    try:
+        response = requests.post(
+            url,
+            headers={"x-goog-api-key": GEMINI_KEY},
+            json=payload,
+            timeout=(15, 300),
+        )
+        response.raise_for_status()
+        break
+
+    except (requests.exceptions.Timeout,
+            requests.exceptions.ConnectionError):
+        if attempt == 2:
+            raise
+        wait = 2 ** (attempt + 1)
+        print(f"Gemini est lent. Nouvelle tentative dans {wait} secondes.")
+        time.sleep(wait)
 
     result = response.json()
     text = result["candidates"][0]["content"]["parts"][0]["text"]
