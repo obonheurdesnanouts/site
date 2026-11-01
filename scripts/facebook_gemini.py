@@ -35,7 +35,7 @@ def get_facebook_posts():
     )
 
     params = {
-        "fields": "id,message,created_time,permalink_url",
+"fields": "id,message,created_time,permalink_url,full_picture",
         "limit": 25,
         "access_token": PAGE_TOKEN,
     }
