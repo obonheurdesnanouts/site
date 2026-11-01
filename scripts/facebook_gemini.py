@@ -240,9 +240,9 @@ print("Gemini a répondu correctement.")
 
 def create_articles(posts, articles):
 
-    OUTPUT_DIR.mkdir(
-        exist_ok=True
-    )
+    OUTPUT_DIR.mkdir(exist_ok=True)
+    IMAGE_DIR = Path("images/nouvelles")
+    IMAGE_DIR.mkdir(parents=True, exist_ok=True)
 
     created = 0
     ignored = 0
@@ -253,95 +253,98 @@ def create_articles(posts, articles):
             ignored += 1
             continue
 
-        post_id = str(
-            article.get("post_id", "")
-        )
+        post_id = str(article.get("post_id", ""))
 
-        # Vérifier que la publication existe
         post = next(
-            (
-                item for item in posts
-                if item.get("id") == post_id
-            ),
+            (item for item in posts if item.get("id") == post_id),
             None
         )
 
         if not post:
-            print(
-                f"Publication inconnue ignorée : {post_id}"
-            )
+            print(f"Publication inconnue ignorée : {post_id}")
             ignored += 1
             continue
 
-        title = str(
-            article.get("title", "")
-        ).strip()
-
-        content = str(
-            article.get("content", "")
-        ).strip()
+        title = str(article.get("title", "")).strip()
+        content = str(article.get("content", "")).strip()
 
         if not title or not content:
             ignored += 1
             continue
 
-        date = post.get(
-            "created_time", ""
-        )[:10]
+        date = post.get("created_time", "")[:10]
 
-        if not re.fullmatch(
-            r"\d{4}-\d{2}-\d{2}",
-            date
-        ):
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
             ignored += 1
             continue
 
-        safe_id = re.sub(
-            r"[^a-zA-Z0-9_-]",
-            "-",
-            post_id
-        )
+        safe_id = re.sub(r"[^a-zA-Z0-9_-]", "-", post_id)
 
-        filename = (
-            OUTPUT_DIR
-            / f"{date}-{safe_id}.md"
-        )
+        filename = OUTPUT_DIR / f"{date}-{safe_id}.md"
 
-        # Ne jamais écraser un article existant
         if filename.exists():
-
-            print(
-                f"Article déjà présent : {filename.name}"
-            )
-
+            print(f"Article déjà présent : {filename.name}")
             ignored += 1
             continue
 
-        # Respect du format des actualités du site
+        image_url = post.get("full_picture")
+        image_path = None
+
+        if image_url:
+            try:
+                image_response = requests.get(
+                    image_url,
+                    timeout=(15, 60)
+                )
+                image_response.raise_for_status()
+
+                content_type = image_response.headers.get(
+                    "Content-Type", ""
+                ).split(";")[0].lower()
+
+                extensions = {
+                    "image/jpeg": ".jpg",
+                    "image/png": ".png",
+                    "image/webp": ".webp"
+                }
+
+                extension = extensions.get(content_type)
+
+                if extension:
+                    image_filename = f"{date}-{safe_id}{extension}"
+                    image_file = IMAGE_DIR / image_filename
+
+                    image_file.write_bytes(image_response.content)
+
+                    image_path = f"/images/nouvelles/{image_filename}"
+                    print(f"Photo téléchargée : {image_filename}")
+
+            except requests.RequestException as error:
+                print(f"Photo non téléchargée : {error}")
+
         article_text = (
             "---\n"
             f"title: {json.dumps(title, ensure_ascii=False)}\n"
             f"date: {date}\n"
+        )
+
+        if image_path:
+            article_text += f"image: {image_path}\n"
+
+        article_text += (
             "---\n\n"
             f"{content}\n"
         )
 
-        filename.write_text(
-            article_text,
-            encoding="utf-8"
-        )
+        filename.write_text(article_text, encoding="utf-8")
 
-        print(
-            f"Proposition créée : {filename.name}"
-        )
-
+        print(f"Proposition créée : {filename.name}")
         created += 1
 
     print("--------------------------------")
     print(f"Articles proposés : {created}")
     print(f"Publications ignorées : {ignored}")
     print("--------------------------------")
-
 
 # ==========================================
 # PROGRAMME PRINCIPAL
