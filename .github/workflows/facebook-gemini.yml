@@ -1,4 +1,3 @@
-
 name: Facebook vers Gemini - Nanouts
 
 on:
@@ -26,31 +25,10 @@ jobs:
       - name: Installer les dépendances
         run: pip install requests
 
-      - name: Analyser les publications Facebook avec Gemini
+      - name: Analyser Facebook avec Gemini et créer les propositions
         env:
           FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
           FACEBOOK_PAGE_TOKEN: ${{ secrets.FACEBOOK_PAGE_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/facebook_gemini.py
-
-      - name: Créer une demande de validation
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: propositions/facebook-gemini
-          delete-branch: true
-          title: "🐾 Propositions d'actualités - Ô Bonheur des Nanouts"
-          commit-message: "Préparation des actualités proposées par Gemini"
-          body: |
-            ## 🐾 Nouvelles propositions d'actualités
-
-            Gemini a analysé les publications Facebook et préparé
-            des propositions pour le site Ô Bonheur des Nanouts.
-
-            **À faire avant publication :**
-            - Relire chaque article.
-            - Corriger si nécessaire.
-            - Vérifier les informations.
-            - Fusionner cette demande uniquement si tout est validé.
-
-            Aucun article ne sera publié sur le site avant la fusion.
