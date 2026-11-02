@@ -1,10 +1,10 @@
-
+import base64
 import json
 import os
 import re
 import sys
 import time
-from pathlib import Path
+from urllib.parse import quote
 
 import requests
 
@@ -16,11 +16,25 @@ import requests
 PAGE_ID = os.environ["FACEBOOK_PAGE_ID"]
 PAGE_TOKEN = os.environ["FACEBOOK_PAGE_TOKEN"]
 GEMINI_KEY = os.environ["GEMINI_API_KEY"]
+GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 
 GRAPH_VERSION = "v26.0"
 GEMINI_MODEL = "gemini-3.8-flash"
 
-OUTPUT_DIR = Path("_nouvelles")
+GITHUB_OWNER = "obonheurdesnanouts"
+GITHUB_REPO = "site"
+BASE_BRANCH = "main"
+
+GITHUB_API = (
+    f"https://api.github.com/repos/"
+    f"{GITHUB_OWNER}/{GITHUB_REPO}"
+)
+
+GITHUB_HEADERS = {
+    "Authorization": f"Bearer {GITHUB_TOKEN}",
+    "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28"
+}
 
 
 # ==========================================
@@ -39,7 +53,7 @@ def get_facebook_posts():
     params = {
         "fields": "id,message,created_time,permalink_url,full_picture",
         "limit": 25,
-        "access_token": PAGE_TOKEN,
+        "access_token": PAGE_TOKEN
     }
 
     response = requests.get(
@@ -48,19 +62,16 @@ def get_facebook_posts():
         timeout=(15, 60)
     )
 
-    # Affichage détaillé de l'erreur Facebook
     if not response.ok:
 
         print("ERREUR FACEBOOK :", response.status_code)
 
         try:
-            print(
-                json.dumps(
-                    response.json(),
-                    indent=2,
-                    ensure_ascii=False
-                )
-            )
+            print(json.dumps(
+                response.json(),
+                indent=2,
+                ensure_ascii=False
+            ))
         except ValueError:
             print(response.text)
 
@@ -70,15 +81,12 @@ def get_facebook_posts():
 
     posts = response.json().get("data", [])
 
-    # On ignore les publications sans texte
     posts = [
         post for post in posts
         if post.get("message", "").strip()
     ]
 
-    print(
-        f"{len(posts)} publications Facebook récupérées."
-    )
+    print(f"{len(posts)} publications Facebook récupérées.")
 
     return posts
 
@@ -182,7 +190,6 @@ Si aucune publication ne mérite une actualité :
     print("Connexion à l'API Gemini...")
     print("Modèle utilisé :", GEMINI_MODEL)
 
-    # Trois tentatives en cas de ralentissement
     for attempt in range(3):
 
         try:
@@ -201,7 +208,6 @@ Si aucune publication ne mérite une actualité :
                 timeout=(20, 300)
             )
 
-            # Gestion des erreurs temporaires Gemini
             if response.status_code in (
                 429, 500, 502, 503, 504
             ):
@@ -250,7 +256,6 @@ Si aucune publication ne mérite une actualité :
 
             answer = answer.strip()
 
-            # Nettoyage éventuel du JSON
             answer = re.sub(
                 r"^```(?:json)?\s*|\s*```$",
                 "",
@@ -282,20 +287,357 @@ Si aucune publication ne mérite une actualité :
 
 
 # ==========================================
+# OUTILS GITHUB
+# ==========================================
+
+def github_request(method, endpoint, **kwargs):
+
+    response = requests.request(
+        method,
+        GITHUB_API + endpoint,
+        headers=GITHUB_HEADERS,
+        timeout=(15, 60),
+        **kwargs
+    )
+
+    if not response.ok:
+
+        raise RuntimeError(
+            f"Erreur GitHub {response.status_code} : "
+            f"{response.text}"
+        )
+
+    if response.status_code == 204:
+        return {}
+
+    return response.json()
+
+
+def github_file_exists(path):
+
+    endpoint = (
+        "/contents/"
+        + quote(path, safe="/")
+    )
+
+    response = requests.get(
+        GITHUB_API + endpoint,
+        headers=GITHUB_HEADERS,
+        params={"ref": BASE_BRANCH},
+        timeout=(15, 60)
+    )
+
+    if response.status_code == 200:
+        return True
+
+    if response.status_code == 404:
+        return False
+
+    raise RuntimeError(
+        "Impossible de vérifier le fichier GitHub : "
+        + response.text
+    )
+
+
+def github_branch_exists(branch):
+
+    endpoint = (
+        "/git/ref/heads/"
+        + quote(branch, safe="/")
+    )
+
+    response = requests.get(
+        GITHUB_API + endpoint,
+        headers=GITHUB_HEADERS,
+        timeout=(15, 60)
+    )
+
+    if response.status_code == 200:
+        return True
+
+    if response.status_code == 404:
+        return False
+
+    raise RuntimeError(
+        "Impossible de vérifier la branche GitHub : "
+        + response.text
+    )
+
+
+def github_open_pull_requests():
+
+    response = github_request(
+        "GET",
+        "/pulls",
+        params={
+            "state": "open",
+            "per_page": 100
+        }
+    )
+
+    return response
+
+
+def github_create_branch(branch):
+
+    reference = github_request(
+        "GET",
+        "/git/ref/heads/" + quote(BASE_BRANCH, safe="/")
+    )
+
+    main_sha = reference["object"]["sha"]
+
+    github_request(
+        "POST",
+        "/git/refs",
+        json={
+            "ref": "refs/heads/" + branch,
+            "sha": main_sha
+        }
+    )
+
+    print("Branche créée :", branch)
+
+
+def github_upload_file(branch, path, content, message):
+
+    encoded = base64.b64encode(content).decode("utf-8")
+
+    github_request(
+        "PUT",
+        "/contents/" + quote(path, safe="/"),
+        json={
+            "message": message,
+            "content": encoded,
+            "branch": branch
+        }
+    )
+
+    print("Fichier envoyé :", path)
+
+
+def github_create_pull_request(branch, title, body):
+
+    return github_request(
+        "POST",
+        "/pulls",
+        json={
+            "title": title,
+            "head": branch,
+            "base": BASE_BRANCH,
+            "body": body
+        }
+    )
+
+
+# ==========================================
+# CREATION D'UNE PROPOSITION INDEPENDANTE
+# ==========================================
+
+def create_one_article(post, article):
+
+    post_id = str(article.get("post_id", "")).strip()
+
+    if not post_id:
+        print("Publication sans identifiant : ignorée.")
+        return False
+
+    title = str(article.get("title", "")).strip()
+    content = str(article.get("content", "")).strip()
+
+    if not title or not content:
+        print("Titre ou texte manquant : proposition ignorée.")
+        return False
+
+    date = post.get("created_time", "")[:10]
+
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+        print("Date incorrecte :", date)
+        return False
+
+    safe_id = re.sub(
+        r"[^a-zA-Z0-9_-]",
+        "-",
+        post_id
+    )
+
+    filename = f"{date}-{safe_id}.md"
+
+    article_path = f"_nouvelles/{filename}"
+
+    # Une actualité déjà publiée ne doit pas être recréée.
+    if github_file_exists(article_path):
+        print("Article déjà présent sur le site :", filename)
+        return False
+
+    # Une branche unique par publication Facebook.
+    branch = "propositions/facebook-" + safe_id
+
+    # Vérifier si une proposition existe déjà.
+    pull_requests = github_open_pull_requests()
+
+    for pr in pull_requests:
+
+        if pr.get("head", {}).get("ref") == branch:
+
+            print(
+                "Proposition déjà en attente :",
+                pr.get("html_url")
+            )
+
+            return False
+
+    # Ne pas écraser une ancienne branche existante.
+    if github_branch_exists(branch):
+
+        print(
+            "Branche déjà existante, proposition ignorée :",
+            branch
+        )
+
+        return False
+
+    # Création de la branche depuis main.
+    github_create_branch(branch)
+
+    # Téléchargement de la photo Facebook.
+    image_url = post.get("full_picture")
+    image_path = None
+    image_content = None
+
+    if image_url:
+
+        try:
+
+            image_response = requests.get(
+                image_url,
+                timeout=(15, 60)
+            )
+
+            image_response.raise_for_status()
+
+            content_type = (
+                image_response.headers.get(
+                    "Content-Type", ""
+                )
+                .split(";")[0]
+                .lower()
+            )
+
+            extensions = {
+                "image/jpeg": ".jpg",
+                "image/png": ".png",
+                "image/webp": ".webp"
+            }
+
+            extension = extensions.get(content_type)
+
+            if extension:
+
+                image_filename = f"{date}-{safe_id}{extension}"
+
+                image_path = (
+                    f"/images/nouvelles/{image_filename}"
+                )
+
+                image_content = image_response.content
+
+                print("Photo récupérée :", image_filename)
+
+            else:
+
+                print(
+                    "Format de photo non pris en charge :",
+                    content_type
+                )
+
+        except requests.RequestException as error:
+
+            print("Photo non téléchargée :", error)
+
+    # Création du Markdown.
+    article_text = (
+        "---\n"
+        f"title: {json.dumps(title, ensure_ascii=False)}\n"
+        f"date: {date}\n"
+    )
+
+    if image_path:
+        article_text += f"image: {image_path}\n"
+
+    article_text += (
+        "---\n\n"
+        f"{content}\n"
+    )
+
+    # Envoyer la photo dans la branche.
+    if image_path and image_content:
+
+        github_upload_file(
+            branch,
+            image_path.lstrip("/"),
+            image_content,
+            "Ajout de la photo de l'actualité Facebook"
+        )
+
+    # Envoyer le fichier Markdown.
+    github_upload_file(
+        branch,
+        article_path,
+        article_text.encode("utf-8"),
+        "Préparation d'une actualité Facebook"
+    )
+
+    # Lien vers la publication Facebook d'origine.
+    facebook_link = post.get("permalink_url", "")
+
+    body = f"""
+## 🐾 Proposition d'actualité
+
+Cette actualité a été préparée par Gemini à partir d'une publication Facebook.
+
+**Publication d'origine :**
+{facebook_link}
+
+**À vérifier avant publication :**
+- Relire le titre et le texte.
+- Vérifier les informations.
+- Vérifier la photo.
+- Publier uniquement après validation.
+
+Cette proposition concerne une seule actualité.
+"""
+
+    # Création d'une Pull Request indépendante.
+    pull_request = github_create_pull_request(
+        branch,
+        "🐾 Actualité à valider - " + title,
+        body
+    )
+
+    print("--------------------------------")
+    print("PROPOSITION CRÉÉE AVEC SUCCÈS")
+    print("Actualité :", title)
+    print("Pull Request :", pull_request["html_url"])
+    print("--------------------------------")
+
+    return True
+
+
+# ==========================================
 # CREATION DES ARTICLES
 # ==========================================
 
 def create_articles(posts, articles):
 
-    OUTPUT_DIR.mkdir(exist_ok=True)
-
-    IMAGE_DIR = Path("images/nouvelles")
-    IMAGE_DIR.mkdir(parents=True, exist_ok=True)
-
     created = 0
     ignored = 0
 
     for article in articles:
+
+        if not isinstance(article, dict):
+            ignored += 1
+            continue
 
         if article.get("keep") is not True:
             ignored += 1
@@ -306,149 +648,40 @@ def create_articles(posts, articles):
         post = next(
             (
                 item for item in posts
-                if item.get("id") == post_id
+                if str(item.get("id", "")) == post_id
             ),
             None
         )
 
         if not post:
             print(
-                f"Publication inconnue ignorée : {post_id}"
+                "Publication Facebook introuvable :",
+                post_id
             )
+
             ignored += 1
             continue
 
-        title = str(
-            article.get("title", "")
-        ).strip()
+        try:
 
-        content = str(
-            article.get("content", "")
-        ).strip()
+            result = create_one_article(post, article)
 
-        if not title or not content:
-            ignored += 1
-            continue
+            if result:
+                created += 1
+            else:
+                ignored += 1
 
-        date = post.get("created_time", "")[:10]
+        except Exception as error:
 
-        if not re.fullmatch(
-            r"\d{4}-\d{2}-\d{2}",
-            date
-        ):
-            ignored += 1
-            continue
-
-        safe_id = re.sub(
-            r"[^a-zA-Z0-9_-]",
-            "-",
-            post_id
-        )
-
-        filename = (
-            OUTPUT_DIR / f"{date}-{safe_id}.md"
-        )
-
-        if filename.exists():
             print(
-                f"Article déjà présent : {filename.name}"
+                f"Erreur pour la publication {post_id} : {error}"
             )
+
             ignored += 1
-            continue
-
-        # Téléchargement de la photo Facebook
-        image_url = post.get("full_picture")
-        image_path = None
-
-        if image_url:
-
-            try:
-
-                image_response = requests.get(
-                    image_url,
-                    timeout=(15, 60)
-                )
-
-                image_response.raise_for_status()
-
-                content_type = (
-                    image_response.headers.get(
-                        "Content-Type", ""
-                    )
-                    .split(";")[0]
-                    .lower()
-                )
-
-                extensions = {
-                    "image/jpeg": ".jpg",
-                    "image/png": ".png",
-                    "image/webp": ".webp"
-                }
-
-                extension = extensions.get(
-                    content_type
-                )
-
-                if extension:
-
-                    image_filename = (
-                        f"{date}-{safe_id}{extension}"
-                    )
-
-                    image_file = (
-                        IMAGE_DIR / image_filename
-                    )
-
-                    image_file.write_bytes(
-                        image_response.content
-                    )
-
-                    image_path = (
-                        f"/images/nouvelles/{image_filename}"
-                    )
-
-                    print(
-                        f"Photo téléchargée : "
-                        f"{image_filename}"
-                    )
-
-            except requests.RequestException as error:
-
-                print(
-                    f"Photo non téléchargée : {error}"
-                )
-
-        # Création du fichier Markdown
-        article_text = (
-            "---\n"
-            f"title: {json.dumps(title, ensure_ascii=False)}\n"
-            f"date: {date}\n"
-        )
-
-        if image_path:
-            article_text += (
-                f"image: {image_path}\n"
-            )
-
-        article_text += (
-            "---\n\n"
-            f"{content}\n"
-        )
-
-        filename.write_text(
-            article_text,
-            encoding="utf-8"
-        )
-
-        print(
-            f"Proposition créée : {filename.name}"
-        )
-
-        created += 1
 
     print("--------------------------------")
-    print(f"Articles proposés : {created}")
-    print(f"Publications ignorées : {ignored}")
+    print("Articles proposés :", created)
+    print("Publications ignorées :", ignored)
     print("--------------------------------")
 
 
@@ -464,18 +697,12 @@ def main():
 
     if not posts:
 
-        print(
-            "Aucune publication Facebook à analyser."
-        )
-
+        print("Aucune publication Facebook à analyser.")
         return
 
     result = ask_gemini(posts)
 
-    articles = result.get(
-        "articles",
-        []
-    )
+    articles = result.get("articles", [])
 
     if not isinstance(articles, list):
 
@@ -483,14 +710,9 @@ def main():
             "La réponse de Gemini n'est pas au bon format."
         )
 
-    create_articles(
-        posts,
-        articles
-    )
+    create_articles(posts, articles)
 
-    print(
-        "Analyse terminée."
-    )
+    print("Analyse terminée.")
 
 
 # ==========================================
