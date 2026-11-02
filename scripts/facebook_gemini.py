@@ -136,10 +136,7 @@ Si aucune publication ne mérite une actualité :
                         "text": (
                             instructions
                             + "\n\nPUBLICATIONS FACEBOOK :\n"
-                            + json.dumps(
-                                posts,
-                                ensure_ascii=False
-                            )
+                            + json.dumps(posts, ensure_ascii=False)
                         )
                     }
                 ]
@@ -166,8 +163,10 @@ Si aucune publication ne mérite une actualité :
                 f"Envoi des publications à Gemini "
                 f"(tentative {attempt + 1}/3)..."
             )
-print("Connexion à l'API Gemini...")
-print("Modèle utilisé :", GEMINI_MODEL)
+
+            print("Connexion à l'API Gemini...")
+            print("Modèle utilisé :", GEMINI_MODEL)
+
             response = requests.post(
                 url,
                 headers={
@@ -177,19 +176,28 @@ print("Modèle utilisé :", GEMINI_MODEL)
                 timeout=(20, 300)
             )
 
-if response.status_code in (429, 500, 502, 503, 504):
-    print(f"Gemini indisponible : erreur {response.status_code}")
+            if response.status_code in (429, 500, 502, 503, 504):
 
-    if attempt == 2:
-        response.raise_for_status()
+                print(
+                    f"Gemini indisponible : erreur "
+                    f"{response.status_code}"
+                )
 
-    wait = 10 * (attempt + 1)
-    print(f"Nouvel essai dans {wait} secondes...")
-    time.sleep(wait)
-    continue
+                if attempt == 2:
+                    response.raise_for_status()
 
-response.raise_for_status()
-print("Gemini a répondu correctement.")
+                wait = 10 * (attempt + 1)
+
+                print(
+                    f"Nouvel essai dans {wait} secondes..."
+                )
+
+                time.sleep(wait)
+                continue
+
+            response.raise_for_status()
+
+            print("Gemini a répondu correctement.")
 
             result = response.json()
 
@@ -243,8 +251,6 @@ print("Gemini a répondu correctement.")
     raise RuntimeError(
         "Impossible d'obtenir une réponse de Gemini."
     )
-
-
 # ==========================================
 # CREATION DES ARTICLES
 # ==========================================
