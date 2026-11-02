@@ -1,6 +1,6 @@
 ---
 title: "Collecte solidaire au Carrefour Market de Villers-Bocage"
-date: "2026-11-25"
+date: "2026-09-25"
 ---
 Du 1er au 4 octobre 2026, nous organisons une nouvelle collecte solidaire au **Carrefour Market de Villers-Bocage (80260)**.Cette collecte nous permettra de renouveler les stocks de nourriture et de matériel nécessaires à la prise en charge des chats de l’association.## Nos besoins prioritairesNous recherchons principalement :- Pâtée en boîtes (notre besoin le plus important)
 - Sachets fraîcheur et croquettes pour chats et chatons
