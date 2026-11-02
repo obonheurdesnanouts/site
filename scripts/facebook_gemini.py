@@ -29,13 +29,15 @@ OUTPUT_DIR = Path("_nouvelles")
 
 def get_facebook_posts():
 
+    print("Connexion à Facebook...")
+
     url = (
         f"https://graph.facebook.com/"
         f"{GRAPH_VERSION}/{PAGE_ID}/posts"
     )
 
     params = {
-"fields": "id,message,created_time,permalink_url,full_picture",
+        "fields": "id,message,created_time,permalink_url,full_picture",
         "limit": 25,
         "access_token": PAGE_TOKEN,
     }
@@ -46,7 +48,25 @@ def get_facebook_posts():
         timeout=(15, 60)
     )
 
-    response.raise_for_status()
+    # Affichage détaillé de l'erreur Facebook
+    if not response.ok:
+
+        print("ERREUR FACEBOOK :", response.status_code)
+
+        try:
+            print(
+                json.dumps(
+                    response.json(),
+                    indent=2,
+                    ensure_ascii=False
+                )
+            )
+        except ValueError:
+            print(response.text)
+
+        raise RuntimeError(
+            "Impossible de récupérer les publications Facebook."
+        )
 
     posts = response.json().get("data", [])
 
@@ -56,7 +76,9 @@ def get_facebook_posts():
         if post.get("message", "").strip()
     ]
 
-    print(f"{len(posts)} publications Facebook récupérées.")
+    print(
+        f"{len(posts)} publications Facebook récupérées."
+    )
 
     return posts
 
@@ -136,7 +158,10 @@ Si aucune publication ne mérite une actualité :
                         "text": (
                             instructions
                             + "\n\nPUBLICATIONS FACEBOOK :\n"
-                            + json.dumps(posts, ensure_ascii=False)
+                            + json.dumps(
+                                posts,
+                                ensure_ascii=False
+                            )
                         )
                     }
                 ]
@@ -154,6 +179,9 @@ Si aucune publication ne mérite une actualité :
         f"{GEMINI_MODEL}:generateContent"
     )
 
+    print("Connexion à l'API Gemini...")
+    print("Modèle utilisé :", GEMINI_MODEL)
+
     # Trois tentatives en cas de ralentissement
     for attempt in range(3):
 
@@ -164,9 +192,6 @@ Si aucune publication ne mérite une actualité :
                 f"(tentative {attempt + 1}/3)..."
             )
 
-            print("Connexion à l'API Gemini...")
-            print("Modèle utilisé :", GEMINI_MODEL)
-
             response = requests.post(
                 url,
                 headers={
@@ -176,11 +201,14 @@ Si aucune publication ne mérite une actualité :
                 timeout=(20, 300)
             )
 
-            if response.status_code in (429, 500, 502, 503, 504):
+            # Gestion des erreurs temporaires Gemini
+            if response.status_code in (
+                429, 500, 502, 503, 504
+            ):
 
                 print(
-                    f"Gemini indisponible : erreur "
-                    f"{response.status_code}"
+                    f"Gemini indisponible : "
+                    f"erreur {response.status_code}"
                 )
 
                 if attempt == 2:
@@ -251,6 +279,8 @@ Si aucune publication ne mérite une actualité :
     raise RuntimeError(
         "Impossible d'obtenir une réponse de Gemini."
     )
+
+
 # ==========================================
 # CREATION DES ARTICLES
 # ==========================================
@@ -258,6 +288,7 @@ Si aucune publication ne mérite une actualité :
 def create_articles(posts, articles):
 
     OUTPUT_DIR.mkdir(exist_ok=True)
+
     IMAGE_DIR = Path("images/nouvelles")
     IMAGE_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -273,17 +304,27 @@ def create_articles(posts, articles):
         post_id = str(article.get("post_id", ""))
 
         post = next(
-            (item for item in posts if item.get("id") == post_id),
+            (
+                item for item in posts
+                if item.get("id") == post_id
+            ),
             None
         )
 
         if not post:
-            print(f"Publication inconnue ignorée : {post_id}")
+            print(
+                f"Publication inconnue ignorée : {post_id}"
+            )
             ignored += 1
             continue
 
-        title = str(article.get("title", "")).strip()
-        content = str(article.get("content", "")).strip()
+        title = str(
+            article.get("title", "")
+        ).strip()
+
+        content = str(
+            article.get("content", "")
+        ).strip()
 
         if not title or not content:
             ignored += 1
@@ -291,33 +332,52 @@ def create_articles(posts, articles):
 
         date = post.get("created_time", "")[:10]
 
-        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+        if not re.fullmatch(
+            r"\d{4}-\d{2}-\d{2}",
+            date
+        ):
             ignored += 1
             continue
 
-        safe_id = re.sub(r"[^a-zA-Z0-9_-]", "-", post_id)
+        safe_id = re.sub(
+            r"[^a-zA-Z0-9_-]",
+            "-",
+            post_id
+        )
 
-        filename = OUTPUT_DIR / f"{date}-{safe_id}.md"
+        filename = (
+            OUTPUT_DIR / f"{date}-{safe_id}.md"
+        )
 
         if filename.exists():
-            print(f"Article déjà présent : {filename.name}")
+            print(
+                f"Article déjà présent : {filename.name}"
+            )
             ignored += 1
             continue
 
+        # Téléchargement de la photo Facebook
         image_url = post.get("full_picture")
         image_path = None
 
         if image_url:
+
             try:
+
                 image_response = requests.get(
                     image_url,
                     timeout=(15, 60)
                 )
+
                 image_response.raise_for_status()
 
-                content_type = image_response.headers.get(
-                    "Content-Type", ""
-                ).split(";")[0].lower()
+                content_type = (
+                    image_response.headers.get(
+                        "Content-Type", ""
+                    )
+                    .split(";")[0]
+                    .lower()
+                )
 
                 extensions = {
                     "image/jpeg": ".jpg",
@@ -325,20 +385,40 @@ def create_articles(posts, articles):
                     "image/webp": ".webp"
                 }
 
-                extension = extensions.get(content_type)
+                extension = extensions.get(
+                    content_type
+                )
 
                 if extension:
-                    image_filename = f"{date}-{safe_id}{extension}"
-                    image_file = IMAGE_DIR / image_filename
 
-                    image_file.write_bytes(image_response.content)
+                    image_filename = (
+                        f"{date}-{safe_id}{extension}"
+                    )
 
-                    image_path = f"/images/nouvelles/{image_filename}"
-                    print(f"Photo téléchargée : {image_filename}")
+                    image_file = (
+                        IMAGE_DIR / image_filename
+                    )
+
+                    image_file.write_bytes(
+                        image_response.content
+                    )
+
+                    image_path = (
+                        f"/images/nouvelles/{image_filename}"
+                    )
+
+                    print(
+                        f"Photo téléchargée : "
+                        f"{image_filename}"
+                    )
 
             except requests.RequestException as error:
-                print(f"Photo non téléchargée : {error}")
 
+                print(
+                    f"Photo non téléchargée : {error}"
+                )
+
+        # Création du fichier Markdown
         article_text = (
             "---\n"
             f"title: {json.dumps(title, ensure_ascii=False)}\n"
@@ -346,22 +426,31 @@ def create_articles(posts, articles):
         )
 
         if image_path:
-            article_text += f"image: {image_path}\n"
+            article_text += (
+                f"image: {image_path}\n"
+            )
 
         article_text += (
             "---\n\n"
             f"{content}\n"
         )
 
-        filename.write_text(article_text, encoding="utf-8")
+        filename.write_text(
+            article_text,
+            encoding="utf-8"
+        )
 
-        print(f"Proposition créée : {filename.name}")
+        print(
+            f"Proposition créée : {filename.name}"
+        )
+
         created += 1
 
     print("--------------------------------")
     print(f"Articles proposés : {created}")
     print(f"Publications ignorées : {ignored}")
     print("--------------------------------")
+
 
 # ==========================================
 # PROGRAMME PRINCIPAL
