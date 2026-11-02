@@ -1,0 +1,27 @@
+name: Administration - Nanouts
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Que souhaites-tu faire ?"
+        required: true
+        type: choice
+        options:
+          - Ajouter une actualité
+          - Ajouter un chat à l'adoption
+          - Déclarer un chat adopté
+          - Modifier un contenu
+          - Supprimer un contenu
+          - Reformuler avec Gemini
+
+permissions:
+  contents: write
+
+jobs:
+  administration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Afficher le choix
+        run: |
+          echo "Action demandée : ${{ inputs.action }}"
